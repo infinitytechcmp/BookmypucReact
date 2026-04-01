@@ -5,6 +5,13 @@
 ### Root Cause
 This error occurs when the PHP API returns an empty response or HTML error instead of JSON.
 
+**Common Causes**:
+1. Missing helpers.php file (helper functions are in database.php)
+2. Empty response from PHP
+3. HTML error page returned instead of JSON
+4. Email sending failure blocking response
+5. Database connection errors
+
 ### Solutions Implemented
 
 #### 1. Enhanced Error Handling in PHP API ✅
@@ -199,10 +206,16 @@ mysql -u root -p bookmypuc < php/migration_v13.sql
 
 **Error**: HTML error page returned instead of JSON
 
+**Common Causes**:
+- Missing helpers.php file
+- PHP syntax errors
+- Missing required files
+
 **Fix**:
-- Check `php/api/otp.php` for syntax errors
-- Ensure no `echo` or `print` before JSON response
+- Helper functions are in `database.php`, not separate `helpers.php`
+- otp.php now only requires `database.php`
 - Check PHP version (requires PHP 7.4+)
+- Ensure no `echo` or `print` before JSON response
 
 ### Issue 3: Database Connection Failed
 

@@ -10,7 +10,6 @@
  */
 
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/helpers.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -22,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-$db = getDBConnection();
+$database = new Database();
+$db = $database->getConnection();
 $method = $_SERVER['REQUEST_METHOD'];
 $data = getRequestData();
 
