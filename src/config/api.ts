@@ -86,8 +86,39 @@ export async function apiRequest<T>(
       }
     });
 
-    const result = await response.json();
-    return result;
+    // Check if response is ok
+    if (!response.ok) {
+      console.error('API Response Error:', response.status, response.statusText);
+      return {
+        success: false,
+        message: `Server error: ${response.status} ${response.statusText}`
+      };
+    }
+
+    // Get response text first
+    const text = await response.text();
+    
+    // Check if response is empty
+    if (!text) {
+      console.error('Empty response from server');
+      return {
+        success: false,
+        message: 'Empty response from server'
+      };
+    }
+
+    // Try to parse JSON
+    try {
+      const result = JSON.parse(text);
+      return result;
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.error('Response text:', text);
+      return {
+        success: false,
+        message: 'Invalid JSON response from server'
+      };
+    }
   } catch (error) {
     console.error('API Request Error:', error);
     return {

@@ -88,13 +88,20 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
       });
 
       if (result.success) {
-        toast.success('OTP sent to your email. Please check your inbox.');
+        // For testing: Show OTP in console (REMOVE IN PRODUCTION)
+        if (result.data && 'otp' in result.data) {
+          console.log('🔐 OTP for testing:', (result.data as any).otp);
+          toast.success(`OTP sent! Check console for testing. (OTP: ${(result.data as any).otp})`);
+        } else {
+          toast.success('OTP sent to your email. Please check your inbox.');
+        }
         setOtpSent(true);
         setStep(3);
       } else {
         toast.error(result.message || 'Failed to send OTP. Please try again.');
       }
     } catch (error) {
+      console.error('Send OTP Error:', error);
       toast.error('Failed to send OTP. Please try again.');
     } finally {
       setIsSendingOTP(false);
