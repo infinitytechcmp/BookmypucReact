@@ -141,6 +141,7 @@ export interface AuthUser {
 
 export interface AuthContextType {
   user: AuthUser | null;
+  setUser: (user: AuthUser | null) => void;
   login: (email: string, password: string, role: UserRole) => Promise<boolean>;
   register: (data: RegisterData) => Promise<boolean>;
   logout: () => void;

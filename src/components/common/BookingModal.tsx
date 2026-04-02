@@ -23,6 +23,7 @@ import { centerService } from '@/services/centerService';
 import { bookingService } from '@/services/bookingService';
 import { vehicleService } from '@/services/vehicleService';
 import { otpService } from '@/services/otpService';
+import { apiRequest, API_ENDPOINTS } from '@/config/api';
 import type { Center, VehicleType, FuelType, BookingPersonalDetails, BookingVehicleDetails } from '@/types/types';
 import { BookingSuccessModal } from './BookingSuccessModal';
 
@@ -33,7 +34,7 @@ interface BookingModalProps {
 }
 
 export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
-  const { user, register, isAuthenticated } = useAuth();
+  const { user, setUser, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [personalDetails, setPersonalDetails] = useState<BookingPersonalDetails>({
@@ -116,6 +117,7 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
 
     setIsVerifyingOTP(true);
     try {
+      console.log('Step 1: Verifying OTP...');
       // Verify OTP first
       const verifyResult = await otpService.verifyOTP({
         email: personalDetails.email,
@@ -123,42 +125,93 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
         purpose: 'booking'
       });
 
+      console.log('OTP Verification Result:', verifyResult);
+
       if (!verifyResult.success) {
         toast.error(verifyResult.message || 'Invalid OTP. Please try again.');
         setIsVerifyingOTP(false);
         return;
       }
 
+      console.log('Step 2: OTP verified successfully');
       // OTP verified, proceed with booking
       let userId = user?.id;
 
       // Register user if not authenticated
       if (!isAuthenticated) {
-        const success = await register({
-          name: personalDetails.name,
-          email: personalDetails.email,
-          phone: personalDetails.phone,
-          password: personalDetails.password,
-          role: 'user'
+        console.log('Step 3: Registering new user...');
+        const registerResult = await apiRequest(API_ENDPOINTS.REGISTER, {
+          method: 'POST',
+          body: JSON.stringify({
+            name: personalDetails.name,
+            email: personalDetails.email,
+            phone: personalDetails.phone,
+            password: personalDetails.password,
+            role: 'user'
+          })
         });
 
-        if (!success) {
-          toast.error('Email already exists. Please login.');
+        console.log('Registration Result:', registerResult);
+
+        if (!registerResult.success) {
+          toast.error(registerResult.message || 'Registration failed. Please try again.');
+          setIsVerifyingOTP(false);
           return;
         }
 
-        // Get the newly created user ID
-        const { getMockData } = await import('@/data/mockData');
-        const data = getMockData();
-        const newUser = data.users.find((u) => u.email === personalDetails.email);
-        userId = newUser?.id;
+        // Login the newly registered user
+        console.log('Step 3.1: Logging in new user...');
+        const loginResult = await apiRequest(API_ENDPOINTS.LOGIN, {
+          method: 'POST',
+          body: JSON.stringify({
+            email: personalDetails.email,
+            password: personalDetails.password,
+            role: 'user'
+          })
+        });
+
+        console.log('Login Result:', loginResult);
+
+        if (!loginResult.success || !loginResult.data) {
+          toast.error('Login failed after registration. Please try again.');
+          setIsVerifyingOTP(false);
+          return;
+        }
+
+        // Get user ID directly from login response
+        const userData = loginResult.data as any;
+        if (!userData.user) {
+          toast.error('Invalid login response.');
+          setIsVerifyingOTP(false);
+          return;
+        }
+
+        userId = userData.user.id;
+        
+        // Update context
+        setUser({
+          id: userData.user.id,
+          name: userData.user.name,
+          email: userData.user.email,
+          phone: userData.user.phone,
+          role: userData.user.role,
+          status: userData.user.status,
+          subscription: userData.user.subscription
+        });
+        
+        console.log('New User ID after login:', userId);
+      } else {
+        console.log('User already authenticated, ID:', userId);
       }
 
       if (!userId) {
+        console.error('No user ID available');
         toast.error('Failed to create user');
+        setIsVerifyingOTP(false);
         return;
       }
 
+      console.log('Step 4: Adding vehicle...');
       // Add vehicle
       const vehicle = await vehicleService.addVehicle({
         userId,
@@ -169,11 +222,16 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
         fuel: vehicleDetails.fuelType
       });
 
+      console.log('Vehicle Result:', vehicle);
+
       if (!vehicle) {
+        console.error('Failed to add vehicle');
         toast.error('Failed to add vehicle');
+        setIsVerifyingOTP(false);
         return;
       }
 
+      console.log('Step 5: Creating booking...');
       // Create booking
       const price = calculatePrice();
 
@@ -184,11 +242,16 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
         price
       });
 
+      console.log('Booking Result:', booking);
+
       if (!booking) {
+        console.error('Failed to create booking');
         toast.error('Failed to create booking');
+        setIsVerifyingOTP(false);
         return;
       }
 
+      console.log('Step 6: Booking created successfully!');
       setBookingData({
         centerName: center.name,
         date: booking.date,
@@ -198,6 +261,7 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
 
       setShowSuccessModal(true);
     } catch (error) {
+      console.error('Booking Error:', error);
       toast.error('Booking failed. Please try again.');
     } finally {
       setIsVerifyingOTP(false);
