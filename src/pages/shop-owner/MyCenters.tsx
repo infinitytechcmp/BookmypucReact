@@ -74,7 +74,7 @@ export default function MyCenters() {
         state: center.state,
         taluka: center.taluka,
         pincode: center.pincode,
-        workingHours: center.workingHours,
+        workingHours: center.working_hours,
         contact: center.contact,
         pricing_2w_petrol: center.pricing['2W_Petrol']?.toString() || '50',
         pricing_3w_petrol: center.pricing['3W_Petrol']?.toString() || '100',
@@ -127,7 +127,7 @@ export default function MyCenters() {
         state: formData.state,
         taluka: formData.taluka,
         pincode: formData.pincode,
-        workingHours: formData.workingHours,
+        working_hours: formData.workingHours,
         contact: formData.contact,
         pricing: {
           '2W_Petrol': parseInt(formData.pricing_2w_petrol),
@@ -221,7 +221,7 @@ export default function MyCenters() {
                         <TableCell>{center.city}</TableCell>
                         <TableCell>{center.state}</TableCell>
                         <TableCell>{center.contact}</TableCell>
-                        <TableCell>{center.workingHours}</TableCell>
+                        <TableCell>{center.working_hours}</TableCell>
                         <TableCell>
                           <Badge variant={center.status === 'active' ? 'default' : 'secondary'}>
                             {center.status}

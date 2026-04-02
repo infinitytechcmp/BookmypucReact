@@ -17,6 +17,7 @@ import { bookingService } from '@/services/bookingService';
 import { centerService } from '@/services/centerService';
 import { vehicleService } from '@/services/vehicleService';
 import type { Booking, Center, Vehicle } from '@/types/types';
+import { FILE_BASE_URL } from '@/config/api';
 
 export default function MyBookings() {
   const { user } = useAuth();
@@ -40,13 +41,13 @@ export default function MyBookings() {
       const vehiclesMap: Record<number, Vehicle> = {};
       
       for (const booking of userBookings) {
-        if (!centersMap[booking.centerId]) {
-          const center = await centerService.getCenterById(booking.centerId);
-          if (center) centersMap[booking.centerId] = center;
+        if (!centersMap[booking.center_id]) {
+          const center = await centerService.getCenterById(booking.center_id);
+          if (center) centersMap[booking.center_id] = center;
         }
-        if (!vehiclesMap[booking.vehicleId]) {
-          const vehicle = await vehicleService.getVehicleById(booking.vehicleId);
-          if (vehicle) vehiclesMap[booking.vehicleId] = vehicle;
+        if (!vehiclesMap[booking.vehicle_id]) {
+          const vehicle = await vehicleService.getVehicleById(booking.vehicle_id);
+          if (vehicle) vehiclesMap[booking.vehicle_id] = vehicle;
         }
       }
       
@@ -108,8 +109,10 @@ export default function MyBookings() {
                   </TableHeader>
                   <TableBody>
                     {bookings.map((booking) => {
-                      const center = centers[booking.centerId];
-                      const vehicle = vehicles[booking.vehicleId];
+                      const center = centers[booking.center_id];
+                      const vehicle = vehicles[booking.vehicle_id];
+
+                      console.log(vehicle);
                       
                       return (
                         <TableRow key={booking.id}>
@@ -135,7 +138,7 @@ export default function MyBookings() {
                             )}
                             {booking.status === 'done' && booking.certificate && (
                               <Button variant="outline" size="sm" asChild>
-                                <a href={booking.certificate} target="_blank" rel="noopener noreferrer">
+                                <a href={ FILE_BASE_URL + booking.certificate} target="_blank" rel="noopener noreferrer">
                                   View Certificate
                                 </a>
                               </Button>

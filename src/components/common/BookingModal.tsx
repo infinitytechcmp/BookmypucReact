@@ -221,6 +221,7 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
         model: vehicleDetails.model,
         fuel: vehicleDetails.fuelType
       });
+      
 
       console.log('Vehicle Result:', vehicle);
 
@@ -236,9 +237,9 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
       const price = calculatePrice();
 
       const booking = await bookingService.createBooking({
-        userId,
-        centerId: center.id,
-        vehicleId: vehicle.id,
+        user_id : userId,
+        center_id: center.id,
+        vehicle_id: vehicle.id,
         price
       });
 
@@ -258,6 +259,14 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
         time: booking.time,
         vehicleNumber: vehicleDetails.vehicleNumber
       });
+
+      // After booking created
+await apiRequest(API_ENDPOINTS.SEND_BOOKING_EMAIL, {
+  method: 'POST',
+  body: JSON.stringify({
+    booking_id: booking.id
+  })
+});
 
       setShowSuccessModal(true);
     } catch (error) {

@@ -26,7 +26,13 @@ export default function ShopOwnerBookings() {
     open: false,
     bookingId: null
   });
-  const [pucData, setPucData] = useState({ pucNumber: '', certificate: '' });
+const [pucData, setPucData] = useState<{
+  pucNumber: string;
+  certificate: File | null;
+}>({
+  pucNumber: '',
+  certificate: null
+});
   const [centers, setCenters] = useState<Array<{ id: number; name: string }>>([]);
 
   useEffect(() => {
@@ -51,7 +57,7 @@ export default function ShopOwnerBookings() {
     let filtered = [...bookings];
     
     if (selectedCenter !== 'all') {
-      filtered = filtered.filter(b => b.centerId === parseInt(selectedCenter));
+      filtered = filtered.filter(b => b.id === parseInt(selectedCenter));
     }
     
     if (selectedStatus !== 'all') {
@@ -83,29 +89,45 @@ export default function ShopOwnerBookings() {
     }
   };
 
-  const handleMarkAsDone = async () => {
-    if (!markDoneDialog.bookingId || !pucData.pucNumber) {
-      toast.error('Please enter PUC number');
-      return;
-    }
+const handleMarkAsDone = async () => {
+  if (!markDoneDialog.bookingId || !pucData.pucNumber) {
+    toast.error('Please enter PUC number');
+    return;
+  }
 
-    const success = await bookingService.markBookingAsDone(
-      markDoneDialog.bookingId,
-      pucData.pucNumber,
-      pucData.certificate || 'certificate.pdf'
-    );
+  if (!pucData.certificate) {
+    toast.error('Please upload certificate');
+    return;
+  }
 
-    if (success) {
+  try {
+    const formData = new FormData();
+    formData.append('id', String(markDoneDialog.bookingId));
+    formData.append('puc_number', pucData.pucNumber);
+    formData.append('certificate', pucData.certificate); // ✅ FILE
+
+    const result = await bookingService.markBookingAsDone(formData);
+
+    console.log('MARK DONE RESPONSE:', result);
+
+    if (result.success) {
       toast.success('PUC Certificate Generated! 🎉', {
         description: 'User has been notified'
       });
+
       setMarkDoneDialog({ open: false, bookingId: null });
-      setPucData({ pucNumber: '', certificate: '' });
+      setPucData({ pucNumber: '', certificate: null });
+
       await loadData();
     } else {
-      toast.error('Failed to mark booking as done');
+      toast.error(result.message || 'Failed to mark booking as done');
     }
-  };
+
+  } catch (error) {
+    console.error(error);
+    toast.error('Upload failed');
+  }
+};
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
@@ -217,9 +239,9 @@ export default function ShopOwnerBookings() {
                     {filteredBookings.map((booking) => (
                       <TableRow key={booking.id} className="hover:bg-muted/50">
                         <TableCell className="font-medium">#{booking.id}</TableCell>
-                        <TableCell>{getUserName(booking.userId)}</TableCell>
-                        <TableCell>{getVehicleNumber(booking.vehicleId)}</TableCell>
-                        <TableCell>{getCenterName(booking.centerId)}</TableCell>
+                        <TableCell>{getUserName(booking.user_id)}</TableCell>
+                        <TableCell>{getVehicleNumber(booking.vehicle_id)}</TableCell>
+                        <TableCell>{getCenterName(booking.center_id)}</TableCell>
                         <TableCell>{booking.date}</TableCell>
                         <TableCell>{booking.time}</TableCell>
                         <TableCell className="font-semibold">₹{booking.price}</TableCell>
@@ -303,7 +325,7 @@ export default function ShopOwnerBookings() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      setPucData({ ...pucData, certificate: file.name });
+                      setPucData({ ...pucData, certificate: file });
                     }
                   }}
                 />

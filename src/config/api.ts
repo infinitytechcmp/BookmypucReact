@@ -5,6 +5,7 @@
 
 // Production API
 export const API_BASE_URL = 'https://bookmypucapi.infinitytecsolutions.com/api';
+export const FILE_BASE_URL = 'https://bookmypucapi.infinitytecsolutions.com/uploads/certificates/';
 
 // Development - Local XAMPP/WAMP/MAMP (uncomment for local development)
 // export const API_BASE_URL = 'http://localhost/bookmypuc-api/api';
@@ -60,7 +61,8 @@ export const API_ENDPOINTS = {
   // OTP
   SEND_OTP: '/otp.php?action=send',
   VERIFY_OTP: '/otp.php?action=verify',
-  RESEND_OTP: '/otp.php?action=resend'
+  RESEND_OTP: '/otp.php?action=resend',
+  SEND_BOOKING_EMAIL: '/send-booking-email.php',
 };
 
 /**
@@ -78,15 +80,16 @@ export async function apiRequest<T>(
   options?: RequestInit
 ): Promise<{ success: boolean; message: string; data?: T }> {
   try {
+    const isFormData = options?.body instanceof FormData;
+
     const response = await fetch(getApiUrl(endpoint), {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...options?.headers
       }
     });
 
-    // Check if response is ok
     if (!response.ok) {
       console.error('API Response Error:', response.status, response.statusText);
       return {
@@ -95,10 +98,8 @@ export async function apiRequest<T>(
       };
     }
 
-    // Get response text first
     const text = await response.text();
-    
-    // Check if response is empty
+
     if (!text) {
       console.error('Empty response from server');
       return {
@@ -107,7 +108,6 @@ export async function apiRequest<T>(
       };
     }
 
-    // Try to parse JSON
     try {
       const result = JSON.parse(text);
       return result;

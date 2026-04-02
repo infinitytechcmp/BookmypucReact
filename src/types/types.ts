@@ -59,7 +59,7 @@ export interface Center {
   state: string;
   taluka: string;
   pincode: string;
-  workingHours: string;
+  working_hours: string;
   contact: string;
   pricing: {
     '2W_Petrol': number;
@@ -73,7 +73,7 @@ export interface Center {
 
 export interface Vehicle {
   id: number;
-  userId: number;
+  userId: number;  
   number: string;
   type: VehicleType;
   brand: string;
@@ -83,9 +83,9 @@ export interface Vehicle {
 
 export interface Booking {
   id: number;
-  userId: number;
-  centerId: number;
-  vehicleId: number;
+  user_id: number;
+  center_id: number;
+  vehicle_id: number;
   date: string;
   time: string;
   status: BookingStatus;

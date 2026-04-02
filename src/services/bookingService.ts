@@ -21,8 +21,8 @@ export const bookingService = {
   },
 
   // Get bookings by center ID
-  getBookingsByCenterId: async (centerId: number): Promise<Booking[]> => {
-    const result = await apiRequest<Booking[]>(`${API_ENDPOINTS.BOOKINGS}?center_id=${centerId}`);
+  getBookingsBycenter_id: async (center_id: number): Promise<Booking[]> => {
+    const result = await apiRequest<Booking[]>(`${API_ENDPOINTS.BOOKINGS}?center_id=${center_id}`);
     return result.success && result.data ? result.data : [];
   },
 
@@ -33,25 +33,45 @@ export const bookingService = {
   },
 
   // Create new booking
-  createBooking: async (bookingData: Omit<Booking, 'id' | 'date' | 'time' | 'status' | 'pucNumber' | 'certificate'>): Promise<Booking | null> => {
-    const result = await apiRequest<{ id: number; date: string; time: string }>(API_ENDPOINTS.BOOKINGS, {
+  createBooking: async (
+  bookingData: Omit<Booking, 'id' | 'date' | 'time' | 'status' | 'pucNumber' | 'certificate'>
+): Promise<Booking | null> => {
+
+  // 🔥 Convert camelCase → snake_case
+  const payload = {
+    user_id: bookingData.user_id,
+    center_id: bookingData.center_id,
+    vehicle_id: bookingData.vehicle_id,
+    price: bookingData.price
+  };
+
+  const result = await apiRequest<{ id: number; date: string; time: string }>(
+    API_ENDPOINTS.BOOKINGS,
+    {
       method: 'POST',
-      body: JSON.stringify(bookingData)
-    });
-    
-    if (result.success && result.data) {
-      return {
-        ...bookingData,
-        id: result.data.id,
-        date: result.data.date,
-        time: result.data.time,
-        status: 'pending',
-        pucNumber: null,
-        certificate: null
-      } as Booking;
+      headers: {
+        'Content-Type': 'application/json' // ✅ important
+      },
+      body: JSON.stringify(payload)
     }
-    return null;
-  },
+  );
+
+  console.log('Booking API response:', result);
+
+  if (result.success && result.data) {
+    return {
+      ...bookingData,
+      id: result.data.id,
+      date: result.data.date,
+      time: result.data.time,
+      status: 'pending',
+      pucNumber: null,
+      certificate: null
+    } as Booking;
+  }
+
+  return null;
+},
 
   // Update booking status
   updateBookingStatus: async (id: number, status: BookingStatus): Promise<boolean> => {
@@ -81,13 +101,22 @@ export const bookingService = {
   },
 
   // Mark booking as done with PUC details
-  markBookingAsDone: async (id: number, pucNumber: string, certificate: string): Promise<boolean> => {
-    const result = await apiRequest(API_ENDPOINTS.MARK_DONE, {
-      method: 'POST',
-      body: JSON.stringify({ id, puc_number: pucNumber, certificate })
-    });
-    return result.success;
-  },
+  // markBookingAsDone: async (id: number, pucNumber: string, certificate: string): Promise<boolean> => {
+  //   const result = await apiRequest(API_ENDPOINTS.MARK_DONE, {
+  //     method: 'POST',
+  //     body: JSON.stringify({ id, puc_number: pucNumber, certificate })
+  //   });
+  //   return result.success;
+  // },
+
+  markBookingAsDone: async (formData: FormData): Promise<any> => {
+  const result = await apiRequest(API_ENDPOINTS.MARK_DONE, {
+    method: 'POST',
+    body: formData
+  });
+
+  return result;
+},
 
   // Cancel booking
   cancelBooking: async (id: number): Promise<boolean> => {

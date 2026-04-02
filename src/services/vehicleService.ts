@@ -16,16 +16,32 @@ export const vehicleService = {
 
   // Add new vehicle
   addVehicle: async (vehicleData: Omit<Vehicle, 'id'>): Promise<Vehicle | null> => {
-    const result = await apiRequest<{ id: number }>(API_ENDPOINTS.VEHICLES, {
-      method: 'POST',
-      body: JSON.stringify(vehicleData)
-    });
-    
-    if (result.success && result.data) {
-      return { ...vehicleData, id: result.data.id } as Vehicle;
-    }
-    return null;
-  },
+  // 🔥 Convert camelCase → snake_case
+  const payload = {
+    user_id: vehicleData.userId,
+    number: vehicleData.number,
+    type: vehicleData.type,
+    brand: vehicleData.brand,
+    model: vehicleData.model,
+    fuel: vehicleData.fuel
+  };
+
+  const result = await apiRequest<{ id: number }>(API_ENDPOINTS.VEHICLES, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json' // ✅ important
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  console.log('Vehicle API response:', result);
+
+  if (result.success && result.data) {
+    return { ...vehicleData, id: result.data.id }; // keep camelCase in frontend
+  }
+
+  return null;
+},
 
   // Update vehicle
   updateVehicle: async (id: number, updates: Partial<Vehicle>): Promise<boolean> => {

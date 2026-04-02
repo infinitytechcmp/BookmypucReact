@@ -45,9 +45,12 @@ export default function ContactUs() {
 
     try {
       const result = await apiRequest(API_ENDPOINTS.CONTACT, {
-        method: 'POST',
-        body: JSON.stringify(formData)
-      });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(formData),
+});
 
       if (result.success) {
         toast.success('Message sent successfully! We will get back to you soon.');

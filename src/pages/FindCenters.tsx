@@ -283,7 +283,7 @@ export default function FindCenters() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 shrink-0" />
-                        <span>{center.workingHours}</span>
+                        <span>{center.working_hours}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 shrink-0" />

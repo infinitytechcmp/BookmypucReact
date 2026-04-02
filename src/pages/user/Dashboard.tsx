@@ -44,7 +44,7 @@ export default function UserDashboard() {
     
     // Apply filters
     if (selectedVehicle !== 'all') {
-      userBookings = userBookings.filter(b => b.vehicleId === parseInt(selectedVehicle));
+      userBookings = userBookings.filter(b => b.vehicle_id === parseInt(selectedVehicle));
     }
     if (selectedStatus !== 'all') {
       userBookings = userBookings.filter(b => b.status === selectedStatus);
@@ -58,13 +58,13 @@ export default function UserDashboard() {
     const vehiclesMapData: Record<number, Vehicle> = {};
     
     for (const booking of userBookings) {
-      if (!centersMap[booking.centerId]) {
-        const center = await centerService.getCenterById(booking.centerId);
-        if (center) centersMap[booking.centerId] = center;
+      if (!centersMap[booking.center_id]) {
+        const center = await centerService.getCenterById(booking.center_id);
+        if (center) centersMap[booking.center_id] = center;
       }
-      if (!vehiclesMapData[booking.vehicleId]) {
-        const vehicle = await vehicleService.getVehicleById(booking.vehicleId);
-        if (vehicle) vehiclesMapData[booking.vehicleId] = vehicle;
+      if (!vehiclesMapData[booking.vehicle_id]) {
+        const vehicle = await vehicleService.getVehicleById(booking.vehicle_id);
+        if (vehicle) vehiclesMapData[booking.vehicle_id] = vehicle;
       }
     }
     
@@ -101,7 +101,7 @@ export default function UserDashboard() {
   const getVehicleWiseData = () => {
     const vehicleData: Record<string, number> = {};
     bookings.forEach(booking => {
-      const vehicle = vehicles.find(v => v.id === booking.vehicleId);
+      const vehicle = vehicles.find(v => v.id === booking.vehicle_id);
       if (vehicle) {
         const key = `${vehicle.number}`;
         vehicleData[key] = (vehicleData[key] || 0) + 1;
@@ -366,8 +366,8 @@ export default function UserDashboard() {
                   </TableHeader>
                   <TableBody>
                     {bookings.slice(0, 10).map((booking) => {
-                      const center = centers[booking.centerId];
-                      const vehicle = vehiclesMap[booking.vehicleId];
+                      const center = centers[booking.center_id];
+                      const vehicle = vehiclesMap[booking.vehicle_id];
                       
                       return (
                         <TableRow key={booking.id} className="hover:bg-muted/50">
