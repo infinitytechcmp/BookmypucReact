@@ -30,8 +30,11 @@ import { BookingModal } from '@/components/common/BookingModal';
 export default function FindCenters() {
   const location = useLocation();
   const prefilledVehicle = location.state?.prefilledVehicle;
+  const prefilledVehicleType = location.state?.prefilledVehicleType;
 
-  const [filters, setFilters] = useState<CenterFilters>({});
+  const [filters, setFilters] = useState<CenterFilters>({
+    vehicleType: prefilledVehicleType as VehicleType | undefined
+  });
   const [selectedCenter, setSelectedCenter] = useState<Center | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -360,6 +363,7 @@ export default function FindCenters() {
             setSelectedCenter(null);
           }}
           prefilledVehicle={prefilledVehicle}
+          prefilledVehicleType={filters.vehicleType || prefilledVehicleType}
         />
       )}
     </PublicLayout>

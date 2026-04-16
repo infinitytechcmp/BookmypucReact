@@ -32,9 +32,10 @@ interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   prefilledVehicle?: Vehicle;
+  prefilledVehicleType?: VehicleType;
 }
 
-export function BookingModal({ center, isOpen, onClose, prefilledVehicle }: BookingModalProps) {
+export function BookingModal({ center, isOpen, onClose, prefilledVehicle, prefilledVehicleType }: BookingModalProps) {
   const { user, setUser, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -46,7 +47,7 @@ export function BookingModal({ center, isOpen, onClose, prefilledVehicle }: Book
   });
   const [vehicleDetails, setVehicleDetails] = useState<BookingVehicleDetails>({
     vehicleNumber: prefilledVehicle?.number || '',
-    vehicleType: prefilledVehicle?.type || '2W',
+    vehicleType: prefilledVehicle?.type || prefilledVehicleType || '2W',
     brand: prefilledVehicle?.brand || '',
     model: prefilledVehicle?.model || '',
     fuelType: prefilledVehicle?.fuel || 'Petrol'

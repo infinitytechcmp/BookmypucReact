@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PublicLayout } from '@/components/layouts/PublicLayout';
-import { CheckCircle2, Search, FileCheck, ArrowRight, Zap, Shield, Clock, Star, Sparkles } from 'lucide-react';
+import { CheckCircle2, Search, FileCheck, ArrowRight, Zap, Shield, Clock, Star, Sparkles, Bike, Car, Truck, CarTaxiFront } from 'lucide-react';
 
 export default function Home() {
   const features = [
@@ -117,6 +117,37 @@ export default function Home() {
               <Button size="lg" variant="outline" className="h-14 border-2 px-8 text-lg hover:border-primary hover:bg-primary/5" asChild>
                 <Link to="/about">Learn More</Link>
               </Button>
+            </div>
+
+            {/* Quick Vehicle Type Select */}
+            <div className="animate-fade-in animation-delay-600 mt-12 mb-8">
+              <p className="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">Quick Select Vehicle Type</p>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <Button variant="outline" className="flex h-24 w-28 flex-col gap-2 rounded-xl border-2 hover:border-primary hover:bg-primary/5" asChild>
+                  <Link to="/find-centers" state={{ prefilledVehicleType: '2W' }}>
+                    <Bike className="h-8 w-8 text-primary" />
+                    <span className="font-semibold">2 Wheeler</span>
+                  </Link>
+                </Button>
+                <Button variant="outline" className="flex h-24 w-28 flex-col gap-2 rounded-xl border-2 hover:border-primary hover:bg-primary/5" asChild>
+                  <Link to="/find-centers" state={{ prefilledVehicleType: '3W' }}>
+                    <CarTaxiFront className="h-8 w-8 text-primary" />
+                    <span className="font-semibold">3 Wheeler</span>
+                  </Link>
+                </Button>
+                <Button variant="outline" className="flex h-24 w-28 flex-col gap-2 rounded-xl border-2 hover:border-primary hover:bg-primary/5" asChild>
+                  <Link to="/find-centers" state={{ prefilledVehicleType: '4W' }}>
+                    <Car className="h-8 w-8 text-primary" />
+                    <span className="font-semibold">4 Wheeler</span>
+                  </Link>
+                </Button>
+                <Button variant="outline" className="flex h-24 w-28 flex-col gap-2 rounded-xl border-2 hover:border-primary hover:bg-primary/5" asChild>
+                  <Link to="/find-centers" state={{ prefilledVehicleType: 'Commercial' }}>
+                    <Truck className="h-8 w-8 text-primary" />
+                    <span className="font-semibold">Commercial</span>
+                  </Link>
+                </Button>
+              </div>
             </div>
 
             {/* Stats */}
