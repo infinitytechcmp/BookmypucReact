@@ -3,6 +3,10 @@ import { UserDashboardLayout } from '@/components/layouts/UserDashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -18,12 +22,19 @@ import { centerService } from '@/services/centerService';
 import { vehicleService } from '@/services/vehicleService';
 import type { Booking, Center, Vehicle } from '@/types/types';
 import { FILE_BASE_URL } from '@/config/api';
+import { Filter } from 'lucide-react';
 
 export default function MyBookings() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [centers, setCenters] = useState<Record<number, Center>>({});
   const [vehicles, setVehicles] = useState<Record<number, Vehicle>>({});
+  const [filters, setFilters] = useState({
+    centerName: '',
+    date: '',
+    vehicle: '',
+    status: 'all'
+  });
 
   useEffect(() => {
     if (user) {
@@ -76,20 +87,108 @@ export default function MyBookings() {
     return variants[status] || 'outline';
   };
 
+  const filteredBookings = bookings.filter((booking) => {
+    const centerName = centers[booking.center_id]?.name || '';
+    const vehicleNumber = vehicles[booking.vehicle_id]?.number || '';
+    
+    const matchesCenter = centerName.toLowerCase().includes(filters.centerName.toLowerCase());
+    const matchesDate = !filters.date || booking.date.includes(filters.date);
+    const matchesVehicle = vehicleNumber.toLowerCase().includes(filters.vehicle.toLowerCase());
+    const matchesStatus = filters.status === 'all' || booking.status === filters.status;
+    
+    return matchesCenter && matchesDate && matchesVehicle && matchesStatus;
+  });
+
   return (
     <UserDashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold">My Bookings</h2>
-          <p className="text-muted-foreground">View and manage your PUC appointments</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold">My Bookings</h2>
+            <p className="text-muted-foreground">View and manage your PUC appointments</p>
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">
+                <Filter className="mr-2 h-4 w-4" />
+                Filters
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Filters</h4>
+                  <p className="text-sm text-muted-foreground">Apply filters to the bookings list.</p>
+                </div>
+                <div className="grid gap-2">
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="filter-center">Center</Label>
+                    <Input
+                      id="filter-center"
+                      placeholder="Center Name..."
+                      value={filters.centerName}
+                      onChange={(e) => setFilters(prev => ({ ...prev, centerName: e.target.value }))}
+                      className="col-span-2 h-8"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="filter-date">Date</Label>
+                    <Input
+                      id="filter-date"
+                      type="date"
+                      value={filters.date}
+                      onChange={(e) => setFilters(prev => ({ ...prev, date: e.target.value }))}
+                      className="col-span-2 h-8"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="filter-vehicle">Vehicle</Label>
+                    <Input
+                      id="filter-vehicle"
+                      placeholder="Vehicle Number..."
+                      value={filters.vehicle}
+                      onChange={(e) => setFilters(prev => ({ ...prev, vehicle: e.target.value }))}
+                      className="col-span-2 h-8"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="filter-status">Status</Label>
+                    <Select
+                      value={filters.status}
+                      onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                    >
+                      <SelectTrigger id="filter-status" className="col-span-2 h-8">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="done">Done</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => setFilters({ centerName: '', date: '', vehicle: '', status: 'all' })}
+                >
+                  Reset Filters
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>All Bookings</CardTitle>
+            <CardTitle>All Bookings ({filteredBookings.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            {bookings.length === 0 ? (
+            {filteredBookings.length === 0 ? (
               <div className="py-12 text-center text-muted-foreground">
                 <p>No bookings found</p>
               </div>
@@ -108,7 +207,7 @@ export default function MyBookings() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bookings.map((booking) => {
+                    {filteredBookings.map((booking) => {
                       const center = centers[booking.center_id];
                       const vehicle = vehicles[booking.vehicle_id];
 

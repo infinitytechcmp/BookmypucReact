@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { PublicLayout } from '@/components/layouts/PublicLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,9 @@ import type { Center, CenterFilters, VehicleType } from '@/types/types';
 import { BookingModal } from '@/components/common/BookingModal';
 
 export default function FindCenters() {
+  const location = useLocation();
+  const prefilledVehicle = location.state?.prefilledVehicle;
+
   const [filters, setFilters] = useState<CenterFilters>({});
   const [selectedCenter, setSelectedCenter] = useState<Center | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -217,6 +221,7 @@ export default function FindCenters() {
                     <SelectItem value="2W">2 Wheeler</SelectItem>
                     <SelectItem value="3W">3 Wheeler</SelectItem>
                     <SelectItem value="4W">4 Wheeler</SelectItem>
+                    <SelectItem value="Commercial">Commercial</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -354,6 +359,7 @@ export default function FindCenters() {
             setIsBookingModalOpen(false);
             setSelectedCenter(null);
           }}
+          prefilledVehicle={prefilledVehicle}
         />
       )}
     </PublicLayout>

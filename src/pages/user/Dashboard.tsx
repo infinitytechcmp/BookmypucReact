@@ -74,7 +74,7 @@ export default function UserDashboard() {
     // Calculate stats
     const allBookings = await bookingService.getBookingsByUserId(user.id);
     const bookingStats = await bookingService.getUserBookingStats(user.id);
-    const totalSpent = allBookings.reduce((sum, booking) => sum + booking.price, 0);
+    const totalSpent = allBookings.reduce((sum, booking) => sum + (Number(booking.price) || 0), 0);
 
     setStats({
       totalBookings: bookingStats.totalBookings,
@@ -117,7 +117,7 @@ export default function UserDashboard() {
     const monthlySpending: Record<string, number> = {};
     bookings.forEach(booking => {
       const month = booking.date.substring(0, 7);
-      monthlySpending[month] = (monthlySpending[month] || 0) + booking.price;
+      monthlySpending[month] = (monthlySpending[month] || 0) + (Number(booking.price) || 0);
     });
     return Object.entries(monthlySpending).map(([month, amount]) => ({
       month,
@@ -142,7 +142,7 @@ export default function UserDashboard() {
     { title: 'Total Bookings', value: stats.totalBookings, icon: Calendar, color: 'text-primary', bgColor: 'bg-primary/10' },
     { title: 'Upcoming', value: stats.upcomingBookings, icon: Clock, color: 'text-chart-2', bgColor: 'bg-chart-2/10' },
     { title: 'Completed', value: stats.completedBookings, icon: CheckCircle2, color: 'text-chart-3', bgColor: 'bg-chart-3/10' },
-    { title: 'Total Spent', value: `₹${stats.totalSpent}`, icon: IndianRupee, color: 'text-chart-4', bgColor: 'bg-chart-4/10' },
+    { title: 'Total Spent', value: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(stats.totalSpent), icon: IndianRupee, color: 'text-chart-4', bgColor: 'bg-chart-4/10' },
     { title: 'Vehicles', value: stats.vehiclesAdded, icon: Car, color: 'text-primary', bgColor: 'bg-primary/10' }
   ];
 

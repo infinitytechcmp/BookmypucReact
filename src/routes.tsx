@@ -30,6 +30,7 @@ import Subscription from './pages/shop-owner/Subscription';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminShopOwners from './pages/admin/ShopOwners';
+import AdminCenters from './pages/admin/Centers';
 import AdminSubscriptions from './pages/admin/Subscriptions';
 
 interface RouteConfig {
@@ -70,6 +71,7 @@ const routes: RouteConfig[] = [
   { name: 'Admin Dashboard', path: '/admin/dashboard', element: <AdminDashboard /> },
   { name: 'Admin Users', path: '/admin/users', element: <AdminUsers /> },
   { name: 'Admin Shop Owners', path: '/admin/shop-owners', element: <AdminShopOwners /> },
+  { name: 'Admin Centers', path: '/admin/centers', element: <AdminCenters /> },
   { name: 'Admin Subscriptions', path: '/admin/subscriptions', element: <AdminSubscriptions /> }
 ];
 

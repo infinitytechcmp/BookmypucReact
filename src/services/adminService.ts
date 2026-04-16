@@ -1,5 +1,5 @@
 import { apiRequest, API_ENDPOINTS } from '@/config/api';
-import type { User, ShopOwner } from '@/types/types';
+import type { User, ShopOwner, Center } from '@/types/types';
 
 export const adminService = {
   // Get dashboard statistics
@@ -98,6 +98,12 @@ export const adminService = {
   // Get all shop owners
   getAllShopOwners: async (): Promise<ShopOwner[]> => {
     const result = await apiRequest<ShopOwner[]>(API_ENDPOINTS.SHOP_OWNERS);
+    return result.success && result.data ? result.data : [];
+  },
+
+  // Get all centers
+  getAllCenters: async (): Promise<Center[]> => {
+    const result = await apiRequest<Center[]>(API_ENDPOINTS.CENTERS);
     return result.success && result.data ? result.data : [];
   },
 

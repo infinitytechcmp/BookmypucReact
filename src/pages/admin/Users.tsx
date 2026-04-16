@@ -7,14 +7,22 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
 import { adminService } from '@/services/adminService';
 import { authService } from '@/services/authService';
-import { Plus } from 'lucide-react';
+import { Plus, Filter } from 'lucide-react';
 import type { User } from '@/types/types';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
+  const [filters, setFilters] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    status: 'all'
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -113,6 +121,15 @@ export default function AdminUsers() {
     }
   };
 
+  const filteredUsers = users.filter((user) => {
+    return (
+      user.name.toLowerCase().includes(filters.name.toLowerCase()) &&
+      user.email.toLowerCase().includes(filters.email.toLowerCase()) &&
+      user.phone.includes(filters.phone) &&
+      (filters.status === 'all' || user.status === filters.status)
+    );
+  });
+
   return (
     <AdminDashboardLayout>
       <div className="space-y-6">
@@ -121,15 +138,91 @@ export default function AdminUsers() {
             <h2 className="text-3xl font-bold">Users</h2>
             <p className="text-muted-foreground">Manage registered users</p>
           </div>
-          <Button onClick={handleOpenDialog}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add User
-          </Button>
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Filters</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Apply filters to the users list.
+                    </p>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-name">Name</Label>
+                      <Input
+                        id="filter-name"
+                        placeholder="Filter Name..."
+                        value={filters.name}
+                        onChange={(e) => setFilters(prev => ({ ...prev, name: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-email">Email</Label>
+                      <Input
+                        id="filter-email"
+                        placeholder="Filter Email..."
+                        value={filters.email}
+                        onChange={(e) => setFilters(prev => ({ ...prev, email: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-phone">Phone</Label>
+                      <Input
+                        id="filter-phone"
+                        placeholder="Filter Phone..."
+                        value={filters.phone}
+                        onChange={(e) => setFilters(prev => ({ ...prev, phone: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-status">Status</Label>
+                      <Select
+                        value={filters.status}
+                        onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                      >
+                        <SelectTrigger id="filter-status" className="col-span-2 h-8">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => setFilters({ name: '', email: '', phone: '', status: 'all' })}
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Button onClick={handleOpenDialog}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add User
+            </Button>
+          </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>All Users ({users.length})</CardTitle>
+            <CardTitle>All Users ({filteredUsers.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -144,7 +237,7 @@ export default function AdminUsers() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>{user.id}</TableCell>
                     <TableCell className="font-medium">{user.name}</TableCell>
@@ -205,7 +298,7 @@ export default function AdminUsers() {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="9876543210"
+                  placeholder="8308544837"
                   maxLength={10}
                   required
                 />

@@ -7,14 +7,22 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
 import { adminService } from '@/services/adminService';
 import { authService } from '@/services/authService';
-import { Plus } from 'lucide-react';
+import { Plus, Filter } from 'lucide-react';
 import type { ShopOwner } from '@/types/types';
 
 export default function AdminShopOwners() {
   const [shopOwners, setShopOwners] = useState<ShopOwner[]>([]);
+  const [filters, setFilters] = useState({
+    name: '',
+    email: '',
+    status: 'all',
+    subscription: 'all'
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -130,6 +138,15 @@ export default function AdminShopOwners() {
     }
   };
 
+  const filteredShopOwners = shopOwners.filter((owner) => {
+    return (
+      (owner.name || '').toLowerCase().includes(filters.name.toLowerCase()) &&
+      (owner.email || '').toLowerCase().includes(filters.email.toLowerCase()) &&
+      (filters.status === 'all' || owner.status === filters.status) &&
+      (filters.subscription === 'all' || owner.subscription === filters.subscription)
+    );
+  });
+
   return (
     <AdminDashboardLayout>
       <div className="space-y-6">
@@ -138,15 +155,97 @@ export default function AdminShopOwners() {
             <h2 className="text-3xl font-bold">Shop Owners</h2>
             <p className="text-muted-foreground">Manage shop owners and their subscriptions</p>
           </div>
-          <Button onClick={handleOpenDialog}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Shop Owner
-          </Button>
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Filters</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Apply filters to the shop owners list.
+                    </p>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-name">Name</Label>
+                      <Input
+                        id="filter-name"
+                        placeholder="Filter Name..."
+                        value={filters.name}
+                        onChange={(e) => setFilters(prev => ({ ...prev, name: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-email">Email</Label>
+                      <Input
+                        id="filter-email"
+                        placeholder="Filter Email..."
+                        value={filters.email}
+                        onChange={(e) => setFilters(prev => ({ ...prev, email: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-status">Status</Label>
+                      <Select
+                        value={filters.status}
+                        onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                      >
+                        <SelectTrigger id="filter-status" className="col-span-2 h-8">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-subscription">Subscription</Label>
+                      <Select
+                        value={filters.subscription}
+                        onValueChange={(value) => setFilters(prev => ({ ...prev, subscription: value }))}
+                      >
+                        <SelectTrigger id="filter-subscription" className="col-span-2 h-8">
+                          <SelectValue placeholder="Subscription" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="paused">Paused</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => setFilters({ name: '', email: '', status: 'all', subscription: 'all' })}
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Button onClick={handleOpenDialog}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Shop Owner
+            </Button>
+          </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>All Shop Owners ({shopOwners.length})</CardTitle>
+            <CardTitle>All Shop Owners ({filteredShopOwners.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -161,7 +260,7 @@ export default function AdminShopOwners() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {shopOwners.map((owner) => (
+                {filteredShopOwners.map((owner) => (
                   <TableRow key={owner.id}>
                     <TableCell>{owner.id}</TableCell>
                     <TableCell className="font-medium">{owner.name}</TableCell>
@@ -235,7 +334,7 @@ export default function AdminShopOwners() {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="9876543210"
+                  placeholder="8308544837"
                   maxLength={10}
                   required
                 />

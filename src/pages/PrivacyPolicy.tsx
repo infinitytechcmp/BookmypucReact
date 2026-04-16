@@ -66,7 +66,7 @@ export default function PrivacyPolicy() {
               <br />
               Email: privacy@bookmypuc.com
               <br />
-              Phone: +91 9876543210
+              Phone: +91 8308544837
             </p>
           </div>
         </div>

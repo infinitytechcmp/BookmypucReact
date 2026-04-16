@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,12 +26,18 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
       toast.error('Please fill all fields');
+      return;
+    }
+
+    if (!agreeTerms) {
+      toast.error('You must agree to the Terms & Conditions');
       return;
     }
 
@@ -148,7 +155,7 @@ export default function Register() {
                           </div>
                           <Input
                             id="phone"
-                            placeholder="9876543210"
+                            placeholder="8308544837"
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             onFocus={() => setFocusedField('phone')}
@@ -207,7 +214,20 @@ export default function Register() {
                           </button>
                         </div>
                       </div>
-                      <Button type="submit" className="h-11 w-full font-semibold shadow-lg transition-all hover:shadow-primary/50" disabled={isLoading}>
+                      <div className="flex items-center space-x-2 pt-2">
+                        <Checkbox 
+                          id="terms-user" 
+                          checked={agreeTerms} 
+                          onCheckedChange={(checked) => setAgreeTerms(checked as boolean)} 
+                        />
+                        <label
+                          htmlFor="terms-user"
+                          className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          I agree to the <Link to="/terms-conditions" className="text-primary hover:underline">terms and conditions</Link>
+                        </label>
+                      </div>
+                      <Button type="submit" className="h-11 w-full font-semibold shadow-lg transition-all hover:shadow-primary/50" disabled={isLoading || !agreeTerms}>
                         {isLoading ? (
                           <div className="flex items-center gap-2">
                             <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
@@ -265,7 +285,7 @@ export default function Register() {
                           </div>
                           <Input
                             id="phone-shop"
-                            placeholder="9876543210"
+                            placeholder="8308544837"
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             onFocus={() => setFocusedField('phone-shop')}
@@ -324,7 +344,20 @@ export default function Register() {
                           </button>
                         </div>
                       </div>
-                      <Button type="submit" className="h-11 w-full font-semibold shadow-lg transition-all hover:shadow-primary/50" disabled={isLoading}>
+                      <div className="flex items-center space-x-2 pt-2">
+                        <Checkbox 
+                          id="terms-shopOwner" 
+                          checked={agreeTerms} 
+                          onCheckedChange={(checked) => setAgreeTerms(checked as boolean)} 
+                        />
+                        <label
+                          htmlFor="terms-shopOwner"
+                          className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          I agree to the <Link to="/terms-conditions" className="text-primary hover:underline">terms and conditions</Link>
+                        </label>
+                      </div>
+                      <Button type="submit" className="h-11 w-full font-semibold shadow-lg transition-all hover:shadow-primary/50" disabled={isLoading || !agreeTerms}>
                         {isLoading ? (
                           <div className="flex items-center gap-2">
                             <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />

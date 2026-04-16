@@ -4,7 +4,7 @@ export type UserRole = 'admin' | 'user' | 'shopOwner';
 export type UserStatus = 'active' | 'inactive';
 export type SubscriptionStatus = 'active' | 'paused';
 export type BookingStatus = 'pending' | 'confirmed' | 'done' | 'cancelled';
-export type VehicleType = '2W' | '3W' | '4W';
+export type VehicleType = '2W' | '3W' | '4W' | 'Commercial';
 export type FuelType = 'Petrol' | 'Diesel';
 export type NotificationType = 'booking_confirmed' | 'booking_rejected' | 'booking_completed' | 'puc_ready' | 'new_booking' | 'user_registered' | 'center_added';
 
@@ -52,7 +52,7 @@ export interface Notification {
 
 export interface Center {
   id: number;
-  ownerId: number;
+  owner_id: number;
   name: string;
   address: string;
   city: string;
@@ -67,13 +67,15 @@ export interface Center {
     '3W_Diesel': number;
     '4W_Petrol': number;
     '4W_Diesel': number;
+    'Commercial_Petrol': number;
+    'Commercial_Diesel': number;
   };
   status: UserStatus;
 }
 
 export interface Vehicle {
   id: number;
-  userId: number;  
+  userId: number;
   number: string;
   type: VehicleType;
   brand: string;

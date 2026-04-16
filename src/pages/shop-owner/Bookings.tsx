@@ -8,20 +8,24 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAuth } from '@/contexts/AuthContext';
 import { bookingService } from '@/services/bookingService';
 import { centerService } from '@/services/centerService';
 import { getMockData } from '@/data/mockData';
 import { toast } from 'sonner';
-import { CheckCircle, XCircle, FileCheck, Calendar } from 'lucide-react';
+import { CheckCircle, XCircle, FileCheck, Calendar, Filter } from 'lucide-react';
 import type { Booking } from '@/types/types';
 
 export default function ShopOwnerBookings() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
-  const [selectedCenter, setSelectedCenter] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [filters, setFilters] = useState({
+    user: '',
+    centerId: 'all',
+    status: 'all',
+    date: ''
+  });
   const [markDoneDialog, setMarkDoneDialog] = useState<{ open: boolean; bookingId: number | null }>({
     open: false,
     bookingId: null
@@ -41,30 +45,12 @@ const [pucData, setPucData] = useState<{
     }
   }, [user]);
 
-  useEffect(() => {
-    applyFilters();
-  }, [bookings, selectedCenter, selectedStatus]);
-
   const loadData = async () => {
     if (!user) return;
     const ownerBookings = await bookingService.getBookingsByShopOwnerId(user.id);
     const ownerCenters = await centerService.getCentersByOwnerId(user.id);
     setBookings(ownerBookings);
     setCenters(ownerCenters.map(c => ({ id: c.id, name: c.name })));
-  };
-
-  const applyFilters = () => {
-    let filtered = [...bookings];
-    
-    if (selectedCenter !== 'all') {
-      filtered = filtered.filter(b => b.id === parseInt(selectedCenter));
-    }
-    
-    if (selectedStatus !== 'all') {
-      filtered = filtered.filter(b => b.status === selectedStatus);
-    }
-    
-    setFilteredBookings(filtered);
   };
 
   const handleConfirmBooking = async (bookingId: number) => {
@@ -157,56 +143,111 @@ const handleMarkAsDone = async () => {
     return center?.name || 'Unknown';
   };
 
+  const filteredBookings = bookings.filter((b) => {
+    const uName = getUserName(b.user_id).toLowerCase();
+    const matchesUser = uName.includes(filters.user.toLowerCase());
+    const matchesCenter = filters.centerId === 'all' || b.center_id.toString() === filters.centerId;
+    const matchesStatus = filters.status === 'all' || b.status === filters.status;
+    const matchesDate = !filters.date || b.date.includes(filters.date);
+    
+    return matchesUser && matchesCenter && matchesStatus && matchesDate;
+  });
+
   return (
     <ShopOwnerDashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h2 className="text-3xl font-bold">Bookings Management</h2>
-          <p className="text-muted-foreground">Confirm, reject, and manage customer bookings</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold">Bookings Management</h2>
+            <p className="text-muted-foreground">Confirm, reject, and manage customer bookings</p>
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">
+                <Filter className="mr-2 h-4 w-4" />
+                Filters
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Filters</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Apply filters to the bookings list.
+                  </p>
+                </div>
+                <div className="grid gap-2">
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="filter-user">User</Label>
+                    <Input
+                      id="filter-user"
+                      placeholder="Filter User..."
+                      value={filters.user}
+                      onChange={(e) => setFilters(prev => ({ ...prev, user: e.target.value }))}
+                      className="col-span-2 h-8"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="filter-center">Center</Label>
+                    <Select
+                      value={filters.centerId}
+                      onValueChange={(value) => setFilters(prev => ({ ...prev, centerId: value }))}
+                    >
+                      <SelectTrigger id="filter-center" className="col-span-2 h-8">
+                        <SelectValue placeholder="All Centers" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Centers</SelectItem>
+                        {centers.map(center => (
+                          <SelectItem key={center.id} value={center.id.toString()}>
+                            {center.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="filter-date">Date</Label>
+                    <Input
+                      id="filter-date"
+                      type="date"
+                      value={filters.date}
+                      onChange={(e) => setFilters(prev => ({ ...prev, date: e.target.value }))}
+                      className="col-span-2 h-8"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="filter-status">Status</Label>
+                    <Select
+                      value={filters.status}
+                      onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                    >
+                      <SelectTrigger id="filter-status" className="col-span-2 h-8">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="done">Done</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => setFilters({ user: '', centerId: 'all', date: '', status: 'all' })}
+                >
+                  Reset Filters
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
-
-        {/* Filters */}
-        <Card className="border-2 border-border/50">
-          <CardHeader>
-            <CardTitle>Filters</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex-1 min-w-[200px]">
-                <Label>Center</Label>
-                <Select value={selectedCenter} onValueChange={setSelectedCenter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Centers" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Centers</SelectItem>
-                    {centers.map(center => (
-                      <SelectItem key={center.id} value={center.id.toString()}>
-                        {center.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex-1 min-w-[200px]">
-                <Label>Status</Label>
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="done">Done</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Bookings Table */}
         <Card className="border-2 border-border/50">

@@ -24,16 +24,17 @@ import { bookingService } from '@/services/bookingService';
 import { vehicleService } from '@/services/vehicleService';
 import { otpService } from '@/services/otpService';
 import { apiRequest, API_ENDPOINTS } from '@/config/api';
-import type { Center, VehicleType, FuelType, BookingPersonalDetails, BookingVehicleDetails } from '@/types/types';
+import type { Center, VehicleType, FuelType, BookingPersonalDetails, BookingVehicleDetails, Vehicle } from '@/types/types';
 import { BookingSuccessModal } from './BookingSuccessModal';
 
 interface BookingModalProps {
   center: Center;
   isOpen: boolean;
   onClose: () => void;
+  prefilledVehicle?: Vehicle;
 }
 
-export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
+export function BookingModal({ center, isOpen, onClose, prefilledVehicle }: BookingModalProps) {
   const { user, setUser, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -44,11 +45,11 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
     password: ''
   });
   const [vehicleDetails, setVehicleDetails] = useState<BookingVehicleDetails>({
-    vehicleNumber: '',
-    vehicleType: '2W',
-    brand: '',
-    model: '',
-    fuelType: 'Petrol'
+    vehicleNumber: prefilledVehicle?.number || '',
+    vehicleType: prefilledVehicle?.type || '2W',
+    brand: prefilledVehicle?.brand || '',
+    model: prefilledVehicle?.model || '',
+    fuelType: prefilledVehicle?.fuel || 'Petrol'
   });
   const [otp, setOtp] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -187,7 +188,7 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
         }
 
         userId = userData.user.id;
-        
+
         // Update context
         setUser({
           id: userData.user.id,
@@ -198,7 +199,7 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
           status: userData.user.status,
           subscription: userData.user.subscription
         });
-        
+
         console.log('New User ID after login:', userId);
       } else {
         console.log('User already authenticated, ID:', userId);
@@ -221,7 +222,7 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
         model: vehicleDetails.model,
         fuel: vehicleDetails.fuelType
       });
-      
+
 
       console.log('Vehicle Result:', vehicle);
 
@@ -237,7 +238,7 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
       const price = calculatePrice();
 
       const booking = await bookingService.createBooking({
-        user_id : userId,
+        user_id: userId,
         center_id: center.id,
         vehicle_id: vehicle.id,
         price
@@ -261,12 +262,12 @@ export function BookingModal({ center, isOpen, onClose }: BookingModalProps) {
       });
 
       // After booking created
-await apiRequest(API_ENDPOINTS.SEND_BOOKING_EMAIL, {
-  method: 'POST',
-  body: JSON.stringify({
-    booking_id: booking.id
-  })
-});
+      await apiRequest(API_ENDPOINTS.SEND_BOOKING_EMAIL, {
+        method: 'POST',
+        body: JSON.stringify({
+          booking_id: booking.id
+        })
+      });
 
       setShowSuccessModal(true);
     } catch (error) {
@@ -320,9 +321,8 @@ await apiRequest(API_ENDPOINTS.SEND_BOOKING_EMAIL, {
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center">
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                    step >= s ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                  }`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full ${step >= s ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                    }`}
                 >
                   {s}
                 </div>
@@ -407,6 +407,7 @@ await apiRequest(API_ENDPOINTS.SEND_BOOKING_EMAIL, {
                       <SelectItem value="2W">2 Wheeler</SelectItem>
                       <SelectItem value="3W">3 Wheeler</SelectItem>
                       <SelectItem value="4W">4 Wheeler</SelectItem>
+                      <SelectItem value="Commercial">Commercial</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -452,8 +453,8 @@ await apiRequest(API_ENDPOINTS.SEND_BOOKING_EMAIL, {
                 <Button variant="outline" className="w-full" onClick={() => setStep(1)}>
                   Back
                 </Button>
-                <Button 
-                  className="w-full" 
+                <Button
+                  className="w-full"
                   onClick={handleSendOTP}
                   disabled={isSendingOTP}
                 >
@@ -482,9 +483,9 @@ await apiRequest(API_ENDPOINTS.SEND_BOOKING_EMAIL, {
                     </InputOTPGroup>
                   </InputOTP>
                 </div>
-                <Button 
-                  variant="link" 
-                  className="mt-2" 
+                <Button
+                  variant="link"
+                  className="mt-2"
                   onClick={handleResendOTP}
                   disabled={isSendingOTP}
                 >
@@ -495,8 +496,8 @@ await apiRequest(API_ENDPOINTS.SEND_BOOKING_EMAIL, {
                 <Button variant="outline" className="w-full" onClick={() => setStep(2)}>
                   Back
                 </Button>
-                <Button 
-                  className="w-full" 
+                <Button
+                  className="w-full"
                   onClick={handleVerifyAndBook}
                   disabled={isVerifyingOTP || otp.length !== 6}
                 >

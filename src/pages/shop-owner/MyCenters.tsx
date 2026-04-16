@@ -7,10 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { centerService } from '@/services/centerService';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Filter } from 'lucide-react';
 import type { Center } from '@/types/types';
 
 interface CenterFormData {
@@ -27,6 +29,8 @@ interface CenterFormData {
   pricing_3w_diesel: string;
   pricing_4w_petrol: string;
   pricing_4w_diesel: string;
+  pricing_commercial_petrol: string;
+  pricing_commercial_diesel: string;
 }
 
 export default function MyCenters() {
@@ -35,6 +39,12 @@ export default function MyCenters() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCenter, setEditingCenter] = useState<Center | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [filters, setFilters] = useState({
+    name: '',
+    city: '',
+    state: '',
+    status: 'all'
+  });
   const [formData, setFormData] = useState<CenterFormData>({
     name: '',
     address: '',
@@ -48,7 +58,9 @@ export default function MyCenters() {
     pricing_3w_petrol: '100',
     pricing_3w_diesel: '150',
     pricing_4w_petrol: '125',
-    pricing_4w_diesel: '150'
+    pricing_4w_diesel: '150',
+    pricing_commercial_petrol: '200',
+    pricing_commercial_diesel: '250'
   });
 
   useEffect(() => {
@@ -80,7 +92,9 @@ export default function MyCenters() {
         pricing_3w_petrol: center.pricing['3W_Petrol']?.toString() || '100',
         pricing_3w_diesel: center.pricing['3W_Diesel']?.toString() || '150',
         pricing_4w_petrol: center.pricing['4W_Petrol']?.toString() || '125',
-        pricing_4w_diesel: center.pricing['4W_Diesel']?.toString() || '150'
+        pricing_4w_diesel: center.pricing['4W_Diesel']?.toString() || '150',
+        pricing_commercial_petrol: center.pricing['Commercial_Petrol']?.toString() || '200',
+        pricing_commercial_diesel: center.pricing['Commercial_Diesel']?.toString() || '250'
       });
     } else {
       setEditingCenter(null);
@@ -97,7 +111,9 @@ export default function MyCenters() {
         pricing_3w_petrol: '100',
         pricing_3w_diesel: '150',
         pricing_4w_petrol: '125',
-        pricing_4w_diesel: '150'
+        pricing_4w_diesel: '150',
+        pricing_commercial_petrol: '200',
+        pricing_commercial_diesel: '250'
       });
     }
     setIsDialogOpen(true);
@@ -110,7 +126,7 @@ export default function MyCenters() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.address || !formData.city || !formData.state || !formData.contact) {
       toast.error('Please fill all required fields');
       return;
@@ -120,7 +136,7 @@ export default function MyCenters() {
 
     try {
       const centerData = {
-        ownerId: user!.id,
+        owner_id: user!.id,
         name: formData.name,
         address: formData.address,
         city: formData.city,
@@ -133,8 +149,10 @@ export default function MyCenters() {
           '2W_Petrol': parseInt(formData.pricing_2w_petrol),
           '3W_Petrol': parseInt(formData.pricing_3w_petrol),
           '3W_Diesel': parseInt(formData.pricing_3w_diesel),
-          '4W_Petrol': parseInt(formData.pricing_4w_petrol),
-          '4W_Diesel': parseInt(formData.pricing_4w_diesel)
+          '4W_Petrol': parseInt(formData.pricing_4w_petrol) || 125,
+          '4W_Diesel': parseInt(formData.pricing_4w_diesel) || 150,
+          'Commercial_Petrol': parseInt(formData.pricing_commercial_petrol) || 200,
+          'Commercial_Diesel': parseInt(formData.pricing_commercial_diesel) || 250
         },
         status: 'active' as const
       };
@@ -177,6 +195,15 @@ export default function MyCenters() {
     }
   };
 
+  const filteredCenters = centers.filter((center) => {
+    return (
+      (center.name || '').toLowerCase().includes(filters.name.toLowerCase()) &&
+      (center.city || '').toLowerCase().includes(filters.city.toLowerCase()) &&
+      (center.state || '').toLowerCase().includes(filters.state.toLowerCase()) &&
+      (filters.status === 'all' || center.status === filters.status)
+    );
+  });
+
   return (
     <ShopOwnerDashboardLayout>
       <div className="space-y-6">
@@ -185,18 +212,94 @@ export default function MyCenters() {
             <h2 className="text-3xl font-bold">My Centers</h2>
             <p className="text-muted-foreground">Manage your PUC centers</p>
           </div>
-          <Button type="button" onClick={() => handleOpenDialog()}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Center
-          </Button>
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Filters</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Apply filters to your centers.
+                    </p>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-name">Name</Label>
+                      <Input
+                        id="filter-name"
+                        placeholder="Filter Name..."
+                        value={filters.name}
+                        onChange={(e) => setFilters(prev => ({ ...prev, name: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-city">City</Label>
+                      <Input
+                        id="filter-city"
+                        placeholder="Filter City..."
+                        value={filters.city}
+                        onChange={(e) => setFilters(prev => ({ ...prev, city: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-state">State</Label>
+                      <Input
+                        id="filter-state"
+                        placeholder="Filter State..."
+                        value={filters.state}
+                        onChange={(e) => setFilters(prev => ({ ...prev, state: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-status">Status</Label>
+                      <Select
+                        value={filters.status}
+                        onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                      >
+                        <SelectTrigger id="filter-status" className="col-span-2 h-8">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => setFilters({ name: '', city: '', state: '', status: 'all' })}
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Button type="button" onClick={() => handleOpenDialog()}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Center
+            </Button>
+          </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Your Centers ({centers.length})</CardTitle>
+            <CardTitle>Your Centers ({filteredCenters.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            {centers.length === 0 ? (
+            {filteredCenters.length === 0 ? (
               <div className="py-12 text-center text-muted-foreground">
                 <p>No centers found. Add your first center to get started.</p>
               </div>
@@ -215,7 +318,7 @@ export default function MyCenters() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {centers.map((center) => (
+                    {filteredCenters.map((center) => (
                       <TableRow key={center.id}>
                         <TableCell className="font-medium">{center.name}</TableCell>
                         <TableCell>{center.city}</TableCell>
@@ -277,7 +380,7 @@ export default function MyCenters() {
                     id="contact"
                     value={formData.contact}
                     onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                    placeholder="9876543210"
+                    placeholder="8308544837"
                     required
                   />
                 </div>
@@ -397,6 +500,26 @@ export default function MyCenters() {
                       type="number"
                       value={formData.pricing_4w_diesel}
                       onChange={(e) => setFormData({ ...formData, pricing_4w_diesel: e.target.value })}
+                      placeholder="150"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="pricing_commercial_petrol" className="text-sm">Commercial Petrol</Label>
+                    <Input
+                      id="pricing_commercial_petrol"
+                      type="number"
+                      value={formData.pricing_commercial_petrol}
+                      onChange={(e) => setFormData({ ...formData, pricing_commercial_petrol: e.target.value })}
+                      placeholder="150"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="pricing_commercial_diesel" className="text-sm">Commercial Diesel</Label>
+                    <Input
+                      id="pricing_commercial_diesel"
+                      type="number"
+                      value={formData.pricing_commercial_diesel}
+                      onChange={(e) => setFormData({ ...formData, pricing_commercial_diesel: e.target.value })}
                       placeholder="150"
                     />
                   </div>

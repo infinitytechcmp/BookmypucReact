@@ -21,7 +21,7 @@ export default function ContactUs() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.email || !formData.mobile || !formData.subject || !formData.message) {
       toast.error('Please fill all fields');
       return;
@@ -45,12 +45,12 @@ export default function ContactUs() {
 
     try {
       const result = await apiRequest(API_ENDPOINTS.CONTACT, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(formData),
-});
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
       if (result.success) {
         toast.success('Message sent successfully! We will get back to you soon.');
@@ -152,7 +152,7 @@ export default function ContactUs() {
                   <Mail className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold">Email</h3>
-                <p className="text-muted-foreground">support@bookmypuc.com</p>
+                <p className="text-muted-foreground">carburantepuc@gmail.com</p>
                 <p className="text-sm text-muted-foreground">We'll respond within 24 hours</p>
               </CardContent>
             </Card>
@@ -163,7 +163,7 @@ export default function ContactUs() {
                   <Phone className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold">Phone</h3>
-                <p className="text-muted-foreground">+91 9876543210</p>
+                <p className="text-muted-foreground">+91 8180820024</p>
                 <p className="text-sm text-muted-foreground">Mon-Sat, 9:00 AM - 6:00 PM IST</p>
               </CardContent>
             </Card>
@@ -173,13 +173,11 @@ export default function ContactUs() {
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <MapPin className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-2 text-lg font-semibold">Office</h3>
+                <h3 className="mb-2 text-lg font-semibold">Book an Appointment</h3>
                 <p className="text-muted-foreground">
-                  123 Business Park, Andheri East
+                  Book your appointment now for
                   <br />
-                  Mumbai, Maharashtra 400069
-                  <br />
-                  India
+                  a hassle-free experience.
                 </p>
               </CardContent>
             </Card>

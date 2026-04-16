@@ -10,10 +10,11 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <span className="text-lg font-bold">B</span>
-              </div>
-              <span className="text-lg font-bold">BookMyPUC</span>
+              <img
+                src="/puclogo.png"
+                alt="BookMyPUC Logo"
+                className="h-[55px] w-auto"
+              />
             </div>
             <p className="text-sm text-muted-foreground">
               Your trusted platform for hassle-free PUC certificate bookings.
@@ -68,8 +69,8 @@ export function Footer() {
           <div>
             <h3 className="mb-3 text-sm font-semibold">Contact</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Email: support@bookmypuc.com</li>
-              <li>Phone: +91 9876543210</li>
+              <li>Email: carburantepuc@gmail.com</li>
+              <li>Phone: +91 8180820024</li>
               <li>
                 <Link to="/contact" className="text-muted-foreground hover:text-primary">
                   Contact Form

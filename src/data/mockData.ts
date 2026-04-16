@@ -38,7 +38,7 @@ const mockData: MockDatabase = {
       id: 1,
       name: 'City PUC Services',
       email: 'citypuc@gmail.com',
-      phone: '9876543210',
+      phone: '8308544837',
       password: 'shop123',
       role: 'shopOwner',
       status: 'active',
@@ -75,8 +75,8 @@ const mockData: MockDatabase = {
       state: 'Maharashtra',
       taluka: 'Thane',
       pincode: '400601',
-      workingHours: '08:00 - 20:00',
-      contact: '9876543210',
+      working_hours: '08:00 - 20:00',
+      contact: '8308544837',
       pricing: {
         '2W_Petrol': 50,
         '3W_Petrol': 100,
@@ -95,8 +95,8 @@ const mockData: MockDatabase = {
       state: 'Maharashtra',
       taluka: 'Mumbai Suburban',
       pincode: '400069',
-      workingHours: '09:00 - 21:00',
-      contact: '9876543210',
+      working_hours: '09:00 - 21:00',
+      contact: '8308544837',
       pricing: {
         '2W_Petrol': 50,
         '3W_Petrol': 100,
@@ -115,7 +115,7 @@ const mockData: MockDatabase = {
       state: 'Maharashtra',
       taluka: 'Pune City',
       pincode: '411004',
-      workingHours: '08:00 - 19:00',
+      working_hours: '08:00 - 19:00',
       contact: '9876543212',
       pricing: {
         '2W_Petrol': 50,
@@ -135,7 +135,7 @@ const mockData: MockDatabase = {
       state: 'Maharashtra',
       taluka: 'Nashik',
       pincode: '422101',
-      workingHours: '08:30 - 18:30',
+      working_hours: '08:30 - 18:30',
       contact: '9876543212',
       pricing: {
         '2W_Petrol': 50,
@@ -155,7 +155,7 @@ const mockData: MockDatabase = {
       state: 'Maharashtra',
       taluka: 'Nagpur',
       pincode: '440012',
-      workingHours: '09:00 - 20:00',
+      working_hours: '09:00 - 20:00',
       contact: '9876543213',
       pricing: {
         '2W_Petrol': 50,
@@ -190,9 +190,9 @@ const mockData: MockDatabase = {
   bookings: [
     {
       id: 1,
-      userId: 1,
-      centerId: 1,
-      vehicleId: 1,
+      user_id: 1,
+      center_id: 1,
+      vehicle_id: 1,
       date: '2026-04-02',
       time: '10:30',
       status: 'confirmed',
@@ -202,9 +202,9 @@ const mockData: MockDatabase = {
     },
     {
       id: 2,
-      userId: 1,
-      centerId: 2,
-      vehicleId: 2,
+      user_id: 1,
+      center_id: 2,
+      vehicle_id: 2,
       date: '2026-03-28',
       time: '14:00',
       status: 'done',

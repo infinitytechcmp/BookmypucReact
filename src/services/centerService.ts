@@ -63,7 +63,7 @@ export const centerService = {
       method: 'POST',
       body: JSON.stringify(centerData)
     });
-    
+
     if (result.success && result.data) {
       return { ...centerData, id: result.data.id } as Center;
     }

@@ -5,19 +5,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { vehicleService } from '@/services/vehicleService';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Filter } from 'lucide-react';
 import type { Vehicle, VehicleType, FuelType } from '@/types/types';
+import { useNavigate } from 'react-router-dom';
 
 export default function MyVehicles() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [filters, setFilters] = useState({
+    number: '',
+    type: 'all',
+    brand: '',
+    fuel: 'all'
+  });
   const [formData, setFormData] = useState({
     number: '',
     type: '2W' as VehicleType,
@@ -78,6 +87,10 @@ export default function MyVehicles() {
     setIsDialogOpen(true);
   };
 
+  const handleBookVehicle = (vehicle: Vehicle) => {
+    navigate('/find-centers', { state: { prefilledVehicle: vehicle } });
+  };
+
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this vehicle?')) {
       const success = await vehicleService.deleteVehicle(id);
@@ -100,6 +113,15 @@ export default function MyVehicles() {
     });
   };
 
+  const filteredVehicles = vehicles.filter(v => {
+    return (
+      (v.number || '').toLowerCase().includes(filters.number.toLowerCase()) &&
+      (filters.type === 'all' || v.type === filters.type) &&
+      (v.brand || '').toLowerCase().includes(filters.brand.toLowerCase()) &&
+      (filters.fuel === 'all' || v.fuel === filters.fuel)
+    );
+  });
+
   return (
     <UserDashboardLayout>
       <div className="space-y-6">
@@ -108,13 +130,94 @@ export default function MyVehicles() {
             <h2 className="text-3xl font-bold">My Vehicles</h2>
             <p className="text-muted-foreground">Manage your registered vehicles</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditingVehicle(null)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Vehicle
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Filters</h4>
+                    <p className="text-sm text-muted-foreground">Apply filters to vehicles list.</p>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-number">Number</Label>
+                      <Input
+                        id="filter-number"
+                        placeholder="Vehicle Number..."
+                        value={filters.number}
+                        onChange={(e) => setFilters(prev => ({ ...prev, number: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-type">Type</Label>
+                      <Select
+                        value={filters.type}
+                        onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}
+                      >
+                        <SelectTrigger className="col-span-2 h-8">
+                          <SelectValue placeholder="Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Types</SelectItem>
+                          <SelectItem value="2W">2 Wheeler</SelectItem>
+                          <SelectItem value="3W">3 Wheeler</SelectItem>
+                          <SelectItem value="4W">4 Wheeler</SelectItem>
+                          <SelectItem value="Commercial">Commercial</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-brand">Brand</Label>
+                      <Input
+                        id="filter-brand"
+                        placeholder="Brand..."
+                        value={filters.brand}
+                        onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
+                        className="col-span-2 h-8"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor="filter-fuel">Fuel</Label>
+                      <Select
+                        value={filters.fuel}
+                        onValueChange={(value) => setFilters(prev => ({ ...prev, fuel: value }))}
+                      >
+                        <SelectTrigger className="col-span-2 h-8">
+                          <SelectValue placeholder="Fuel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Fuels</SelectItem>
+                          <SelectItem value="Petrol">Petrol</SelectItem>
+                          <SelectItem value="Diesel">Diesel</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => setFilters({ number: '', type: 'all', brand: '', fuel: 'all' })}
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingVehicle(null)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Vehicle
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingVehicle ? 'Edit Vehicle' : 'Add Vehicle'}</DialogTitle>
@@ -140,6 +243,7 @@ export default function MyVehicles() {
                         <SelectItem value="2W">2 Wheeler</SelectItem>
                         <SelectItem value="3W">3 Wheeler</SelectItem>
                         <SelectItem value="4W">4 Wheeler</SelectItem>
+                        <SelectItem value="Commercial">Commercial</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -187,14 +291,15 @@ export default function MyVehicles() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Your Vehicles</CardTitle>
+            <CardTitle>Your Vehicles ({filteredVehicles.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            {vehicles.length === 0 ? (
+            {filteredVehicles.length === 0 ? (
               <div className="py-12 text-center text-muted-foreground">
                 <p>No vehicles added yet</p>
               </div>
@@ -211,7 +316,7 @@ export default function MyVehicles() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {vehicles.map((vehicle) => (
+                  {filteredVehicles.map((vehicle) => (
                     <TableRow key={vehicle.id}>
                       <TableCell className="font-medium">{vehicle.number}</TableCell>
                       <TableCell>{vehicle.type}</TableCell>
@@ -220,6 +325,9 @@ export default function MyVehicles() {
                       <TableCell>{vehicle.fuel}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
+                          <Button variant="default" size="sm" onClick={() => handleBookVehicle(vehicle)}>
+                            Book
+                          </Button>
                           <Button variant="outline" size="sm" onClick={() => handleEdit(vehicle)}>
                             <Pencil className="h-4 w-4" />
                           </Button>

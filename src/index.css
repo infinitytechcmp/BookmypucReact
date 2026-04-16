@@ -18,7 +18,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 210 20% 15%;
     /* Primary: Professional green for environmental consciousness */
-    --primary: 142 76% 36%;
+    --primary: 97 52% 52%;
     --primary-foreground: 0 0% 100%;
     /* Secondary: Trustworthy blue */
     --secondary: 210 100% 95%;
@@ -32,9 +32,9 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
     --border: 210 20% 90%;
     --input: 210 20% 90%;
-    --ring: 142 76% 36%;
+    --ring: 97 52% 52%;
     /* Charts: Green/blue palette */
-    --chart-1: 142 76% 36%;
+    --chart-1: 97 52% 52%;
     --chart-2: 210 80% 50%;
     --chart-3: 173 58% 39%;
     --chart-4: 197 37% 50%;
@@ -42,14 +42,14 @@ All colors MUST be HSL.
     /* Sidebar: Clean professional look */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 210 20% 20%;
-    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary: 97 52% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 142 30% 95%;
     --sidebar-accent-foreground: 142 76% 25%;
     --sidebar-border: 210 20% 90%;
-    --sidebar-ring: 142 76% 36%;
+    --sidebar-ring: 97 52% 52%;
     /* Status colors */
-    --success: 142 76% 36%;
+    --success: 97 52% 52%;
     --warning: 43 96% 56%;
     --info: 210 80% 50%;
   }

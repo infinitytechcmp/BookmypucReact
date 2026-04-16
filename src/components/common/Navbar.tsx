@@ -30,12 +30,12 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo with Animation */}
-        <Link to="/" className="group flex items-center space-x-2">
-          <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary to-chart-2 text-primary-foreground shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-primary/50">
-            <span className="relative z-10 text-xl font-bold">B</span>
-            <div className="absolute inset-0 bg-gradient-to-br from-chart-2 to-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          </div>
-          <span className="gradient-text text-xl font-bold">BookMyPUC</span>
+        <Link to="/" className="group flex items-center">
+          <img 
+            src="/puclogo.png" 
+            alt="BookMyPUC Logo" 
+            className="h-[55px] w-auto transition-transform duration-300 group-hover:scale-105"
+          />
         </Link>
 
         {/* Desktop Navigation */}
