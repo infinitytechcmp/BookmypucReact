@@ -21,7 +21,7 @@ export default function AdminLogin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.email || !formData.password) {
       toast.error('Please fill all fields');
       return;
@@ -79,7 +79,7 @@ export default function AdminLogin() {
             <div className="group relative animate-fade-in">
               {/* Glow Effect */}
               <div className="absolute -inset-0.5 animate-pulse rounded-2xl bg-gradient-to-r from-destructive/50 via-primary/50 to-chart-2/50 opacity-30 blur transition duration-1000 group-hover:opacity-50" />
-              
+
               {/* Card Content */}
               <div className="relative rounded-2xl border border-border/50 bg-card/95 p-8 shadow-2xl backdrop-blur-xl">
                 {/* Header */}
@@ -177,7 +177,7 @@ export default function AdminLogin() {
                 </form>
 
                 {/* Demo Credentials */}
-                <div className="mt-8 animate-slide-in rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-chart-2/5 p-4 backdrop-blur-sm animation-delay-500">
+                {/* <div className="mt-8 animate-slide-in rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-chart-2/5 p-4 backdrop-blur-sm animation-delay-500">
                   <div className="mb-2 flex items-center gap-2">
                     <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20">
                       <Lock className="h-3 w-3 text-primary" />
@@ -194,7 +194,7 @@ export default function AdminLogin() {
                       <code className="rounded bg-muted px-2 py-0.5 font-mono">admin123</code>
                     </p>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Security Notice */}
                 <div className="mt-6 flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">

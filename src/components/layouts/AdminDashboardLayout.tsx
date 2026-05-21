@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Home, Users, Building2, CreditCard, LogOut, Menu, Moon, Sun, MapPin } from 'lucide-react';
+import { Home, Users, Building2, CreditCard, LogOut, Menu, Moon, Sun, MapPin, ClipboardList, Calendar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -17,6 +17,8 @@ export function AdminDashboardLayout({ children }: AdminDashboardLayoutProps) {
 
   const menuItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: Home },
+    { name: 'Registrations', path: '/admin/registrations', icon: ClipboardList },
+    { name: 'Bookings', path: '/admin/bookings', icon: Calendar },
     { name: 'Users', path: '/admin/users', icon: Users },
     { name: 'Shop Owners', path: '/admin/shop-owners', icon: Building2 },
     { name: 'Centers', path: '/admin/centers', icon: MapPin },

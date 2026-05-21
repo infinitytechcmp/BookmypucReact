@@ -14,6 +14,7 @@ import { adminService } from '@/services/adminService';
 import { authService } from '@/services/authService';
 import { Plus, Filter } from 'lucide-react';
 import type { ShopOwner } from '@/types/types';
+import { ExportButton } from '@/components/ExportButton';
 
 export default function AdminShopOwners() {
   const [shopOwners, setShopOwners] = useState<ShopOwner[]>([]);
@@ -156,6 +157,7 @@ export default function AdminShopOwners() {
             <p className="text-muted-foreground">Manage shop owners and their subscriptions</p>
           </div>
           <div className="flex items-center gap-2">
+            <ExportButton data={filteredShopOwners} filename="admin_shop_owners" title="System Shop Owners List" />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline">

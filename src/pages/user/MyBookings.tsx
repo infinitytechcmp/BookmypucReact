@@ -23,6 +23,7 @@ import { vehicleService } from '@/services/vehicleService';
 import type { Booking, Center, Vehicle } from '@/types/types';
 import { FILE_BASE_URL } from '@/config/api';
 import { Filter } from 'lucide-react';
+import { ExportButton } from '@/components/ExportButton';
 
 export default function MyBookings() {
   const { user } = useAuth();
@@ -107,9 +108,11 @@ export default function MyBookings() {
             <h2 className="text-3xl font-bold">My Bookings</h2>
             <p className="text-muted-foreground">View and manage your PUC appointments</p>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
+          <div className="flex items-center gap-2">
+            <ExportButton data={filteredBookings} filename="my_bookings" title="My Bookings List" />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline">
                 <Filter className="mr-2 h-4 w-4" />
                 Filters
               </Button>
@@ -180,7 +183,8 @@ export default function MyBookings() {
                 </Button>
               </div>
             </PopoverContent>
-          </Popover>
+            </Popover>
+          </div>
         </div>
 
         <Card>

@@ -13,6 +13,9 @@ $db = $database->getConnection();
 
 $method = getRequestMethod();
 $data = getRequestData();
+if (empty($data) && !empty($_POST)) {
+    $data = $_POST;
+}
 
 // Get action from query parameter
 $action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -309,7 +312,25 @@ function handleMarkAsDone($db, $data) {
             sendResponse(false, 'Booking not found', null, 404);
         }
 
-        $certificate = isset($data['certificate']) ? $data['certificate'] : 'certificate.pdf';
+        $certificate = 'certificate.pdf';
+
+        // Handle certificate file upload if present
+        if (isset($_FILES['certificate']) && $_FILES['certificate']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['certificate'];
+            $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '_', basename($file['name']));
+            $uploadDir = '../uploads/certificates/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $targetFile = $uploadDir . $fileName;
+            if (move_uploaded_file($file['tmp_name'], $targetFile)) {
+                $certificate = $fileName;
+            } else {
+                sendResponse(false, 'Failed to save uploaded certificate document', null, 500);
+            }
+        } elseif (isset($data['certificate']) && is_string($data['certificate']) && !empty($data['certificate'])) {
+            $certificate = $data['certificate'];
+        }
 
         // Update booking
         $updateQuery = "UPDATE bookings SET status = 'done', puc_number = :puc_number, certificate = :certificate WHERE id = :id";

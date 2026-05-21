@@ -14,6 +14,7 @@ import { adminService } from '@/services/adminService';
 import { authService } from '@/services/authService';
 import { Plus, Filter } from 'lucide-react';
 import type { User } from '@/types/types';
+import { ExportButton } from '@/components/ExportButton';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -139,6 +140,7 @@ export default function AdminUsers() {
             <p className="text-muted-foreground">Manage registered users</p>
           </div>
           <div className="flex items-center gap-2">
+            <ExportButton data={filteredUsers} filename="admin_users" title="System Users List" />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline">

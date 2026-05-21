@@ -4,8 +4,9 @@
  */
 
 // Production API
-export const API_BASE_URL = 'https://bookmypucapi.infinitytecsolutions.com/api';
-export const FILE_BASE_URL = 'https://bookmypucapi.infinitytecsolutions.com/uploads/certificates/';
+export const API_BASE_URL = 'https://apifor.bookmypuc.com/api';
+export const FILE_BASE_URL = 'https://apifor.bookmypuc.com/uploads/certificates/';
+export const LICENSE_BASE_URL = 'https://apifor.bookmypuc.com/uploads/licenses/';
 
 // Development - Local XAMPP/WAMP/MAMP (uncomment for local development)
 // export const API_BASE_URL = 'http://localhost/bookmypuc-api/api';
@@ -18,32 +19,32 @@ export const API_ENDPOINTS = {
   LOGIN: '/auth.php?action=login',
   REGISTER: '/auth.php?action=register',
   ADMIN_LOGIN: '/auth.php?action=admin-login',
-  
+
   // Centers
   CENTERS: '/centers.php',
-  
+
   // Bookings
   BOOKINGS: '/bookings.php',
   CONFIRM_BOOKING: '/bookings.php?action=confirm',
   REJECT_BOOKING: '/bookings.php?action=reject',
   MARK_DONE: '/bookings.php?action=mark-done',
   CANCEL_BOOKING: '/bookings.php?action=cancel',
-  
+
   // Vehicles
   VEHICLES: '/vehicles.php',
-  
+
   // Notifications
   NOTIFICATIONS: '/notifications.php',
   UNREAD_COUNT: '/notifications.php?action=unread-count',
   MARK_READ: '/notifications.php?action=mark-read',
   MARK_ALL_READ: '/notifications.php?action=mark-all-read',
-  
+
   // Users
   USERS: '/users.php',
-  
+
   // Shop Owners
   SHOP_OWNERS: '/shop-owners.php',
-  
+
   // Admin
   ADMIN_STATS: '/admin.php?action=dashboard-stats',
   USER_STATS: '/admin.php?action=user-stats',
@@ -54,10 +55,14 @@ export const API_ENDPOINTS = {
   DEACTIVATE_SHOP_OWNER: '/admin.php?action=deactivate-shop-owner',
   PAUSE_SUBSCRIPTION: '/admin.php?action=pause-subscription',
   RESUME_SUBSCRIPTION: '/admin.php?action=resume-subscription',
-  
+  ADMIN_REGISTRATIONS: '/admin.php?action=registrations',
+  APPROVE_REGISTRATION: '/admin.php?action=approve-registration',
+  REJECT_REGISTRATION: '/admin.php?action=reject-registration',
+  REGISTRATION_DETAILS: '/shop-owners.php?action=registration-details',
+
   // Contact
   CONTACT: '/contact.php',
-  
+
   // OTP
   SEND_OTP: '/otp.php?action=send',
   VERIFY_OTP: '/otp.php?action=verify',

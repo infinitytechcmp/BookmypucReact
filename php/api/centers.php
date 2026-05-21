@@ -136,13 +136,28 @@ function handleCreate($db, $data) {
     }
 
     try {
+        // Enforce limit of one center per shop owner
+        $checkCenterQuery = "SELECT id FROM centers WHERE owner_id = :owner_id";
+        $checkCenterStmt = $db->prepare($checkCenterQuery);
+        $checkCenterStmt->bindParam(':owner_id', $data['owner_id']);
+        $checkCenterStmt->execute();
+        if ($checkCenterStmt->fetch()) {
+            sendResponse(false, 'You can only add one center per account.', null, 400);
+        }
+
         $query = "INSERT INTO centers (owner_id, name, address, city, state, taluka, pincode, working_hours, contact,
+                 center_code_petrol, center_code_diesel, license_document,
                  pricing_2w_petrol, pricing_3w_petrol, pricing_3w_diesel, pricing_4w_petrol, pricing_4w_diesel, status)
                  VALUES (:owner_id, :name, :address, :city, :state, :taluka, :pincode, :working_hours, :contact,
+                 :center_code_petrol, :center_code_diesel, :license_document,
                  :pricing_2w_petrol, :pricing_3w_petrol, :pricing_3w_diesel, :pricing_4w_petrol, :pricing_4w_diesel, 'active')";
 
         $stmt = $db->prepare($query);
         
+        $center_code_petrol = isset($data['center_code_petrol']) ? $data['center_code_petrol'] : null;
+        $center_code_diesel = isset($data['center_code_diesel']) ? $data['center_code_diesel'] : null;
+        $license_document = isset($data['license_document']) ? $data['license_document'] : null;
+
         $stmt->bindParam(':owner_id', $data['owner_id']);
         $stmt->bindParam(':name', $data['name']);
         $stmt->bindParam(':address', $data['address']);
@@ -152,6 +167,9 @@ function handleCreate($db, $data) {
         $stmt->bindParam(':pincode', $data['pincode']);
         $stmt->bindParam(':working_hours', $data['working_hours']);
         $stmt->bindParam(':contact', $data['contact']);
+        $stmt->bindParam(':center_code_petrol', $center_code_petrol);
+        $stmt->bindParam(':center_code_diesel', $center_code_diesel);
+        $stmt->bindParam(':license_document', $license_document);
         
         // Pricing with defaults
         $pricing_2w_petrol = isset($data['pricing']['2W_Petrol']) ? $data['pricing']['2W_Petrol'] : 50;
@@ -204,7 +222,7 @@ function handleUpdate($db, $data) {
         $updates = [];
         $params = [':id' => $data['id']];
 
-        $allowedFields = ['name', 'address', 'city', 'state', 'taluka', 'pincode', 'working_hours', 'contact', 'status'];
+        $allowedFields = ['name', 'address', 'city', 'state', 'taluka', 'pincode', 'working_hours', 'contact', 'status', 'center_code_petrol', 'center_code_diesel', 'license_document'];
         
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {

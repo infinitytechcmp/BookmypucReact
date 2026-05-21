@@ -52,15 +52,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (registerData: RegisterData): Promise<boolean> => {
+  const register = async (registerData: RegisterData | FormData): Promise<boolean> => {
     try {
+      const isFormData = registerData instanceof FormData;
       const result = await apiRequest(API_ENDPOINTS.REGISTER, {
         method: 'POST',
-        body: JSON.stringify(registerData)
+        body: isFormData ? registerData : JSON.stringify(registerData)
       });
 
       if (result.success) {
-        toast.success('Registration successful! Please login.');
+        const message = result.message || 'Registration successful!';
+        toast.success(message);
         return true;
       } else {
         toast.error(result.message || 'Registration failed');

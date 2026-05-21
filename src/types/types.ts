@@ -61,6 +61,9 @@ export interface Center {
   pincode: string;
   working_hours: string;
   contact: string;
+  center_code_petrol?: string;
+  center_code_diesel?: string;
+  license_document?: string;
   pricing: {
     '2W_Petrol': number;
     '3W_Petrol': number;
@@ -145,7 +148,7 @@ export interface AuthContextType {
   user: AuthUser | null;
   setUser: (user: AuthUser | null) => void;
   login: (email: string, password: string, role: UserRole) => Promise<boolean>;
-  register: (data: RegisterData) => Promise<boolean>;
+  register: (data: RegisterData | FormData) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -178,3 +181,18 @@ export interface AdminDashboardStats {
   activeUsers: number;
   activeCenters: number;
 }
+
+export interface ShopOwnerRegistration {
+  id: number;
+  center_name: string;
+  address: string;
+  owner_name: string;
+  contact: string;
+  email: string;
+  center_code_petrol: string;
+  center_code_diesel: string;
+  center_license_document: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+}
+

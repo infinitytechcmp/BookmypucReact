@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { adminService } from '@/services/adminService';
 import { Filter } from 'lucide-react';
+import { ExportButton } from '@/components/ExportButton';
 
 export default function AdminSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
@@ -50,9 +51,9 @@ export default function AdminSubscriptions() {
 
   const filteredSubscriptions = subscriptions.filter((sub) => {
     return (
-      (sub.shopOwnerName || '').toLowerCase().includes(filters.shopOwnerName.toLowerCase()) &&
+      (sub.name || sub.shopOwnerName || '').toLowerCase().includes(filters.shopOwnerName.toLowerCase()) &&
       (sub.email || '').toLowerCase().includes(filters.email.toLowerCase()) &&
-      (sub.plan || '').toLowerCase().includes(filters.plan.toLowerCase()) &&
+      (sub.plan || 'Standard Plan').toLowerCase().includes(filters.plan.toLowerCase()) &&
       (filters.status === 'all' || sub.status === filters.status)
     );
   });
@@ -65,9 +66,11 @@ export default function AdminSubscriptions() {
             <h2 className="text-3xl font-bold">Subscriptions</h2>
             <p className="text-muted-foreground">Manage shop owner subscriptions</p>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">
+          <div className="flex items-center gap-2">
+            <ExportButton data={filteredSubscriptions} filename="admin_subscriptions" title="Shop Owner Subscriptions List" />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline">
                 <Filter className="mr-2 h-4 w-4" />
                 Filters
               </Button>
@@ -139,7 +142,8 @@ export default function AdminSubscriptions() {
                 </Button>
               </div>
             </PopoverContent>
-          </Popover>
+            </Popover>
+          </div>
         </div>
 
         <Card>
@@ -160,9 +164,9 @@ export default function AdminSubscriptions() {
               <TableBody>
                 {filteredSubscriptions.map((sub) => (
                   <TableRow key={sub.id}>
-                    <TableCell className="font-medium">{sub.shopOwnerName}</TableCell>
+                    <TableCell className="font-medium">{sub.name || sub.shopOwnerName}</TableCell>
                     <TableCell>{sub.email}</TableCell>
-                    <TableCell>{sub.plan}</TableCell>
+                    <TableCell>{sub.plan || 'Standard Plan'}</TableCell>
                     <TableCell>
                       <Badge variant={sub.status === 'active' ? 'default' : 'outline'}>
                         {sub.status}

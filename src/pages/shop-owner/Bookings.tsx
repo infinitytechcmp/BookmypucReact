@@ -16,6 +16,7 @@ import { getMockData } from '@/data/mockData';
 import { toast } from 'sonner';
 import { CheckCircle, XCircle, FileCheck, Calendar, Filter } from 'lucide-react';
 import type { Booking } from '@/types/types';
+import { ExportButton } from '@/components/ExportButton';
 
 export default function ShopOwnerBookings() {
   const { user } = useAuth();
@@ -162,7 +163,9 @@ const handleMarkAsDone = async () => {
             <h2 className="text-3xl font-bold">Bookings Management</h2>
             <p className="text-muted-foreground">Confirm, reject, and manage customer bookings</p>
           </div>
-          <Popover>
+          <div className="flex items-center gap-2">
+            <ExportButton data={filteredBookings} filename="center_bookings" title="Bookings Management List" />
+            <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline">
                 <Filter className="mr-2 h-4 w-4" />
@@ -246,7 +249,8 @@ const handleMarkAsDone = async () => {
                 </Button>
               </div>
             </PopoverContent>
-          </Popover>
+            </Popover>
+          </div>
         </div>
 
         {/* Bookings Table */}
@@ -324,7 +328,7 @@ const handleMarkAsDone = async () => {
                             )}
                             {booking.status === 'done' && (
                               <span className="text-sm text-muted-foreground">
-                                PUC: {booking.pucNumber}
+                                PUC: {booking.pucNumber || (booking as any).puc_number}
                               </span>
                             )}
                           </div>

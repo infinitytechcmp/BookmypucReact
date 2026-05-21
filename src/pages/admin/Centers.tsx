@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Filter, Search } from 'lucide-react';
 import { adminService } from '@/services/adminService';
 import type { Center, ShopOwner } from '@/types/types';
+import { ExportButton } from '@/components/ExportButton';
 
 export default function AdminCenters() {
   const [centers, setCenters] = useState<Center[]>([]);
@@ -81,6 +82,7 @@ export default function AdminCenters() {
               />
             </div>
             
+            <ExportButton data={filteredCenters} filename="admin_centers" title="All PUC Centers List" />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline">

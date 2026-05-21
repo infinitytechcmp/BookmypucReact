@@ -54,6 +54,18 @@ switch ($action) {
         resumeSubscription($db, $data);
         break;
     
+    case 'registrations':
+        getRegistrations($db);
+        break;
+    
+    case 'approve-registration':
+        approveRegistration($db, $data);
+        break;
+    
+    case 'reject-registration':
+        rejectRegistration($db, $data);
+        break;
+    
     default:
         sendResponse(false, 'Invalid action', null, 400);
 }
@@ -68,6 +80,7 @@ function getDashboardStats($db) {
                     (SELECT COUNT(*) FROM users WHERE status = 'active') as active_users,
                     (SELECT COUNT(*) FROM centers WHERE status = 'active') as active_centers,
                     (SELECT COUNT(*) FROM shop_owners WHERE status = 'active') as active_shop_owners,
+                    (SELECT COUNT(*) FROM shop_owner_registrations WHERE status = 'pending') as pending_registrations,
                     (SELECT COALESCE(SUM(price), 0) FROM bookings WHERE status = 'done') as total_revenue";
 
         $stmt = $db->prepare($query);
@@ -79,6 +92,7 @@ function getDashboardStats($db) {
         $stats['active_users'] = (int)$stats['active_users'];
         $stats['active_centers'] = (int)$stats['active_centers'];
         $stats['active_shop_owners'] = (int)$stats['active_shop_owners'];
+        $stats['pending_registrations'] = (int)$stats['pending_registrations'];
         $stats['total_revenue'] = (float)$stats['total_revenue'];
 
         sendResponse(true, 'Dashboard stats retrieved successfully', $stats);
@@ -285,5 +299,253 @@ function resumeSubscription($db, $data) {
     } catch (PDOException $e) {
         sendResponse(false, 'Failed to resume subscription: ' . $e->getMessage(), null, 500);
     }
+}
+
+/**
+ * Get all shop owner registrations
+ */
+function getRegistrations($db) {
+    try {
+        $query = "SELECT * FROM shop_owner_registrations ORDER BY created_at DESC";
+        $stmt = $db->prepare($query);
+        $stmt->execute();
+        $registrations = $stmt->fetchAll();
+        
+        sendResponse(true, 'Registrations retrieved successfully', $registrations);
+    } catch (PDOException $e) {
+        sendResponse(false, 'Failed to retrieve registrations: ' . $e->getMessage(), null, 500);
+    }
+}
+
+/**
+ * Approve a shop owner registration request
+ */
+function approveRegistration($db, $data) {
+    if (!isset($data['id'])) {
+        sendResponse(false, 'Registration ID is required', null, 400);
+    }
+
+    $id = $data['id'];
+
+    try {
+        // Fetch registration details
+        $query = "SELECT * FROM shop_owner_registrations WHERE id = :id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        $registration = $stmt->fetch();
+
+        if (!$registration) {
+            sendResponse(false, 'Registration request not found', null, 404);
+        }
+
+        if ($registration['status'] !== 'pending') {
+            sendResponse(false, 'This registration request has already been ' . $registration['status'], null, 400);
+        }
+
+        // Start transaction
+        $db->beginTransaction();
+
+        // 1. Update status in shop_owner_registrations
+        $updateQuery = "UPDATE shop_owner_registrations SET status = 'approved' WHERE id = :id";
+        $updateStmt = $db->prepare($updateQuery);
+        $updateStmt->bindParam(':id', $id);
+        $updateStmt->execute();
+
+        // 2. Check if email already exists in shop_owners (just in case)
+        $checkQuery = "SELECT id FROM shop_owners WHERE email = :email";
+        $checkStmt = $db->prepare($checkQuery);
+        $checkStmt->bindParam(':email', $registration['email']);
+        $checkStmt->execute();
+        if ($checkStmt->fetch()) {
+            $db->rollBack();
+            sendResponse(false, 'Email already registered as shop owner', null, 409);
+        }
+
+        // 3. Create shop owner account
+        $insertQuery = "INSERT INTO shop_owners (name, email, phone, password, role, status, subscription) 
+                        VALUES (:name, :email, :phone, :password, 'shopOwner', 'active', 'active')";
+        $insertStmt = $db->prepare($insertQuery);
+        $insertStmt->bindParam(':name', $registration['owner_name']);
+        $insertStmt->bindParam(':email', $registration['email']);
+        $insertStmt->bindParam(':phone', $registration['contact']);
+        $insertStmt->bindParam(':password', $registration['password']); // password is already hashed from registration
+        $insertStmt->execute();
+
+        $shopOwnerId = $db->lastInsertId();
+
+        // 4. Create notification for shop owner
+        $notifQuery = "INSERT INTO notifications (user_id, user_role, type, title, message, is_read) 
+                      VALUES (:user_id, 'shopOwner', 'account_approved', 'Account Approved', :message, FALSE)";
+        $notifStmt = $db->prepare($notifQuery);
+        $notifMessage = "Your shop owner account has been approved. You can now log in and add your center.";
+        $notifStmt->bindParam(':user_id', $shopOwnerId);
+        $notifStmt->bindParam(':message', $notifMessage);
+        $notifStmt->execute();
+
+        $db->commit();
+
+        // Send confirmation email to shop owner
+        sendShopOwnerApprovalEmail($registration['email'], $registration['owner_name']);
+
+        sendResponse(true, 'Registration approved and shop owner account created successfully');
+    } catch (PDOException $e) {
+        if ($db->inTransaction()) {
+            $db->rollBack();
+        }
+        sendResponse(false, 'Failed to approve registration: ' . $e->getMessage(), null, 500);
+    }
+}
+
+/**
+ * Reject a shop owner registration request
+ */
+function rejectRegistration($db, $data) {
+    if (!isset($data['id'])) {
+        sendResponse(false, 'Registration ID is required', null, 400);
+    }
+
+    $id = $data['id'];
+
+    try {
+        // Fetch registration details
+        $query = "SELECT * FROM shop_owner_registrations WHERE id = :id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        $registration = $stmt->fetch();
+
+        if (!$registration) {
+            sendResponse(false, 'Registration request not found', null, 404);
+        }
+
+        if ($registration['status'] !== 'pending') {
+            sendResponse(false, 'This registration request has already been ' . $registration['status'], null, 400);
+        }
+
+        // Update status in shop_owner_registrations
+        $updateQuery = "UPDATE shop_owner_registrations SET status = 'rejected' WHERE id = :id";
+        $updateStmt = $db->prepare($updateQuery);
+        $updateStmt->bindParam(':id', $id);
+        $updateStmt->execute();
+
+        // Send rejection email to shop owner
+        sendShopOwnerRejectionEmail($registration['email'], $registration['owner_name']);
+
+        sendResponse(true, 'Registration rejected successfully');
+    } catch (PDOException $e) {
+        sendResponse(false, 'Failed to reject registration: ' . $e->getMessage(), null, 500);
+    }
+}
+
+/**
+ * Send approval email to shop owner
+ */
+function sendShopOwnerApprovalEmail($email, $ownerName) {
+    $subject = 'BookMyPUC - Shop Owner Account Approved';
+    
+    $message = "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+            .highlight { background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>🚗 BookMyPUC</h1>
+                <p>Congratulations! Your Account is Approved</p>
+            </div>
+            <div class='content'>
+                <p>Hello {$ownerName},</p>
+                <p>We are pleased to inform you that your request to register as a Shop Owner on BookMyPUC has been approved by the administrator.</p>
+                
+                <div class='highlight'>
+                    <strong>Important Note:</strong> You can add only <strong>one</strong> PUC center per email address. Please make sure to enter your center details carefully when adding your center.
+                </div>
+                
+                <p>You can now log in using the email and password you provided during registration.</p>
+                
+                <p>Please log in and visit your <strong>My Centers</strong> page to complete your center profile and start accepting bookings.</p>
+                
+                <p>Best regards,<br><strong>BookMyPUC Team</strong></p>
+            </div>
+            <div class='footer'>
+                <p>© 2026 BookMyPUC. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+    $headers .= "From: BookMyPUC <noreply@bookmypuc.com>" . "\r\n";
+    $headers .= "Reply-To: support@bookmypuc.com" . "\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
+
+    // Send email
+    $result = mail($email, $subject, $message, $headers);
+    error_log("Shop Owner Approval email sent to {$email}: " . ($result ? 'Success' : 'Failed'));
+    return $result;
+}
+
+/**
+ * Send rejection email to shop owner
+ */
+function sendShopOwnerRejectionEmail($email, $ownerName) {
+    $subject = 'BookMyPUC - Shop Owner Registration Application Update';
+    
+    $message = "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>🚗 BookMyPUC</h1>
+                <p>Registration Application Update</p>
+            </div>
+            <div class='content'>
+                <p>Hello {$ownerName},</p>
+                <p>Thank you for your interest in joining BookMyPUC as a shop owner.</p>
+                <p>We regret to inform you that your application to register a PUC center has been rejected by the administrator after reviewing your submitted information and license document.</p>
+                <p>If you believe this was an error or would like to submit updated information or clear documents, please register again with valid information or contact our support team at support@bookmypuc.com.</p>
+                
+                <p>Best regards,<br><strong>BookMyPUC Team</strong></p>
+            </div>
+            <div class='footer'>
+                <p>© 2026 BookMyPUC. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+    $headers .= "From: BookMyPUC <noreply@bookmypuc.com>" . "\r\n";
+    $headers .= "Reply-To: support@bookmypuc.com" . "\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
+
+    // Send email
+    $result = mail($email, $subject, $message, $headers);
+    error_log("Shop Owner Rejection email sent to {$email}: " . ($result ? 'Success' : 'Failed'));
+    return $result;
 }
 ?>

@@ -13,6 +13,11 @@ $db = $database->getConnection();
 
 $method = getRequestMethod();
 $data = getRequestData();
+$action = isset($_GET['action']) ? $_GET['action'] : '';
+
+if ($action === 'registration-details') {
+    handleRegistrationDetails($db);
+}
 
 switch ($method) {
     case 'GET':
@@ -146,6 +151,34 @@ function handleDelete($db) {
         sendResponse(true, 'Shop owner deleted successfully');
     } catch (PDOException $e) {
         sendResponse(false, 'Failed to delete shop owner: ' . $e->getMessage(), null, 500);
+    }
+}
+
+/**
+ * Get registration details by email
+ */
+function handleRegistrationDetails($db) {
+    if (!isset($_GET['email'])) {
+        sendResponse(false, 'Email is required', null, 400);
+    }
+
+    $email = $_GET['email'];
+
+    try {
+        $query = "SELECT center_name, address, owner_name, contact, email, center_code_petrol, center_code_diesel, center_license_document, status, created_at 
+                  FROM shop_owner_registrations WHERE email = :email LIMIT 1";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        $registration = $stmt->fetch();
+
+        if ($registration) {
+            sendResponse(true, 'Registration details retrieved successfully', $registration);
+        } else {
+            sendResponse(false, 'Registration details not found', null, 404);
+        }
+    } catch (PDOException $e) {
+        sendResponse(false, 'Failed to retrieve registration details: ' . $e->getMessage(), null, 500);
     }
 }
 ?>

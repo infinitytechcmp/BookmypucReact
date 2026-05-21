@@ -1,35 +1,40 @@
 import type { Booking, BookingStatus } from '@/types/types';
 import { apiRequest, API_ENDPOINTS } from '@/config/api';
 
+const mapBooking = (b: any): Booking => ({
+  ...b,
+  pucNumber: b.pucNumber !== undefined ? b.pucNumber : (b.puc_number !== undefined ? b.puc_number : null)
+});
+
 export const bookingService = {
   // Get all bookings
   getAllBookings: async (): Promise<Booking[]> => {
     const result = await apiRequest<Booking[]>(API_ENDPOINTS.BOOKINGS);
-    return result.success && result.data ? result.data : [];
+    return result.success && result.data ? result.data.map(mapBooking) : [];
   },
 
   // Get booking by ID
   getBookingById: async (id: number): Promise<Booking | undefined> => {
     const result = await apiRequest<Booking[]>(`${API_ENDPOINTS.BOOKINGS}?id=${id}`);
-    return result.success && result.data && result.data.length > 0 ? result.data[0] : undefined;
+    return result.success && result.data && result.data.length > 0 ? mapBooking(result.data[0]) : undefined;
   },
 
   // Get bookings by user ID
   getBookingsByUserId: async (userId: number): Promise<Booking[]> => {
     const result = await apiRequest<Booking[]>(`${API_ENDPOINTS.BOOKINGS}?user_id=${userId}`);
-    return result.success && result.data ? result.data : [];
+    return result.success && result.data ? result.data.map(mapBooking) : [];
   },
 
   // Get bookings by center ID
   getBookingsBycenter_id: async (center_id: number): Promise<Booking[]> => {
     const result = await apiRequest<Booking[]>(`${API_ENDPOINTS.BOOKINGS}?center_id=${center_id}`);
-    return result.success && result.data ? result.data : [];
+    return result.success && result.data ? result.data.map(mapBooking) : [];
   },
 
   // Get bookings by shop owner ID
   getBookingsByShopOwnerId: async (ownerId: number): Promise<Booking[]> => {
     const result = await apiRequest<Booking[]>(`${API_ENDPOINTS.BOOKINGS}?owner_id=${ownerId}`);
-    return result.success && result.data ? result.data : [];
+    return result.success && result.data ? result.data.map(mapBooking) : [];
   },
 
   // Create new booking

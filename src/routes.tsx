@@ -32,6 +32,8 @@ import AdminUsers from './pages/admin/Users';
 import AdminShopOwners from './pages/admin/ShopOwners';
 import AdminCenters from './pages/admin/Centers';
 import AdminSubscriptions from './pages/admin/Subscriptions';
+import AdminRegistrations from './pages/admin/Registrations';
+import AdminBookings from './pages/admin/Bookings';
 
 interface RouteConfig {
   name: string;
@@ -72,7 +74,9 @@ const routes: RouteConfig[] = [
   { name: 'Admin Users', path: '/admin/users', element: <AdminUsers /> },
   { name: 'Admin Shop Owners', path: '/admin/shop-owners', element: <AdminShopOwners /> },
   { name: 'Admin Centers', path: '/admin/centers', element: <AdminCenters /> },
-  { name: 'Admin Subscriptions', path: '/admin/subscriptions', element: <AdminSubscriptions /> }
+  { name: 'Admin Subscriptions', path: '/admin/subscriptions', element: <AdminSubscriptions /> },
+  { name: 'Admin Registrations', path: '/admin/registrations', element: <AdminRegistrations /> },
+  { name: 'Admin Bookings', path: '/admin/bookings', element: <AdminBookings /> }
 ];
 
 export default routes;

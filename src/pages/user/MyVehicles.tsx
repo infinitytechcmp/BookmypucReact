@@ -14,6 +14,7 @@ import { vehicleService } from '@/services/vehicleService';
 import { Plus, Pencil, Trash2, Filter } from 'lucide-react';
 import type { Vehicle, VehicleType, FuelType } from '@/types/types';
 import { useNavigate } from 'react-router-dom';
+import { ExportButton } from '@/components/ExportButton';
 
 export default function MyVehicles() {
   const { user } = useAuth();
@@ -131,6 +132,7 @@ export default function MyVehicles() {
             <p className="text-muted-foreground">Manage your registered vehicles</p>
           </div>
           <div className="flex items-center gap-2">
+            <ExportButton data={filteredVehicles} filename="my_vehicles" title="My Vehicles List" />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline">

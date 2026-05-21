@@ -1,5 +1,5 @@
 import { apiRequest, API_ENDPOINTS } from '@/config/api';
-import type { User, ShopOwner, Center } from '@/types/types';
+import type { User, ShopOwner, Center, ShopOwnerRegistration } from '@/types/types';
 
 export const adminService = {
   // Get dashboard statistics
@@ -9,6 +9,7 @@ export const adminService = {
       active_users: number;
       active_centers: number;
       active_shop_owners: number;
+      pending_registrations: number;
       total_revenue: number;
     }>(API_ENDPOINTS.ADMIN_STATS);
     
@@ -18,6 +19,7 @@ export const adminService = {
         activeUsers: result.data.active_users,
         activeCenters: result.data.active_centers,
         activeShopOwners: result.data.active_shop_owners,
+        pendingRegistrations: result.data.pending_registrations,
         totalRevenue: result.data.total_revenue
       };
     }
@@ -27,6 +29,7 @@ export const adminService = {
       activeUsers: 0,
       activeCenters: 0,
       activeShopOwners: 0,
+      pendingRegistrations: 0,
       totalRevenue: 0
     };
   },
@@ -157,6 +160,30 @@ export const adminService = {
     const result = await apiRequest(API_ENDPOINTS.RESUME_SUBSCRIPTION, {
       method: 'POST',
       body: JSON.stringify({ id: shopOwnerId })
+    });
+    return result.success;
+  },
+
+  // Get all shop owner registrations
+  getAllRegistrations: async (): Promise<ShopOwnerRegistration[]> => {
+    const result = await apiRequest<ShopOwnerRegistration[]>(API_ENDPOINTS.ADMIN_REGISTRATIONS);
+    return result.success && result.data ? result.data : [];
+  },
+
+  // Approve a registration
+  approveRegistration: async (id: number): Promise<boolean> => {
+    const result = await apiRequest(API_ENDPOINTS.APPROVE_REGISTRATION, {
+      method: 'POST',
+      body: JSON.stringify({ id })
+    });
+    return result.success;
+  },
+
+  // Reject a registration
+  rejectRegistration: async (id: number): Promise<boolean> => {
+    const result = await apiRequest(API_ENDPOINTS.REJECT_REGISTRATION, {
+      method: 'POST',
+      body: JSON.stringify({ id })
     });
     return result.success;
   }

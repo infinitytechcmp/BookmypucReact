@@ -8,6 +8,8 @@ USE bookmypuc;
 
 -- Drop tables if exist (for clean installation)
 DROP TABLE IF EXISTS contact_submissions;
+DROP TABLE IF EXISTS otps;
+DROP TABLE IF EXISTS shop_owner_registrations;
 DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS bookings;
 DROP TABLE IF EXISTS vehicles;
@@ -80,6 +82,9 @@ CREATE TABLE centers (
   pincode VARCHAR(10) NOT NULL,
   working_hours VARCHAR(50) NOT NULL,
   contact VARCHAR(20) NOT NULL,
+  center_code_petrol VARCHAR(100) NULL,
+  center_code_diesel VARCHAR(100) NULL,
+  license_document VARCHAR(255) NULL,
   pricing_2w_petrol DECIMAL(10,2) DEFAULT 50.00,
   pricing_3w_petrol DECIMAL(10,2) DEFAULT 100.00,
   pricing_3w_diesel DECIMAL(10,2) DEFAULT 150.00,
@@ -195,6 +200,28 @@ CREATE TABLE otps (
   INDEX idx_otp (otp),
   INDEX idx_expires (expires_at),
   INDEX idx_verified (is_verified)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- Table: shop_owner_registrations (v14)
+-- Purpose: Store registrations waiting for admin approval
+-- =====================================================
+CREATE TABLE shop_owner_registrations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  center_name VARCHAR(200) NOT NULL,
+  address TEXT NOT NULL,
+  owner_name VARCHAR(100) NOT NULL,
+  contact VARCHAR(20) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  center_code_petrol VARCHAR(100) NOT NULL,
+  center_code_diesel VARCHAR(100) NOT NULL,
+  center_license_document VARCHAR(255) NOT NULL,
+  status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_email (email),
+  INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
