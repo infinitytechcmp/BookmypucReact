@@ -36,7 +36,7 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (role === 'user') {
       if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
         toast.error('Please fill all fields');
@@ -109,7 +109,7 @@ export default function Register() {
       }
 
       setIsLoading(true);
-      
+
       const data = new FormData();
       data.append('name', formData.name);
       data.append('email', formData.email);
@@ -286,10 +286,10 @@ export default function Register() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2 pt-2">
-                        <Checkbox 
-                          id="terms-user" 
-                          checked={agreeTerms} 
-                          onCheckedChange={(checked) => setAgreeTerms(checked as boolean)} 
+                        <Checkbox
+                          id="terms-user"
+                          checked={agreeTerms}
+                          onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
                         />
                         <label
                           htmlFor="terms-user"
@@ -317,7 +317,7 @@ export default function Register() {
                       <div className="border-b border-border/50 pb-2 mb-2">
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Owner Details</span>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="name-owner">Owner Name</Label>
                         <div className="relative">
@@ -335,7 +335,7 @@ export default function Register() {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="email-shop">Email Address</Label>
@@ -506,11 +506,11 @@ export default function Register() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="license-document">Center License Document</Label>
+                        <Label htmlFor="license-document">PUCC Center Photo</Label>
                         <div className="relative flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-4 hover:bg-muted/50 transition-colors">
                           <Upload className="h-8 w-8 text-muted-foreground mb-2" />
                           <span className="text-sm font-medium text-muted-foreground text-center">
-                            {licenseFile ? licenseFile.name : 'Upload license document (PDF/Image)'}
+                            {licenseFile ? licenseFile.name : 'Upload center photo (Image)'}
                           </span>
                           <Input
                             id="license-document"
@@ -527,10 +527,10 @@ export default function Register() {
                       </div>
 
                       <div className="flex items-center space-x-2 pt-2">
-                        <Checkbox 
-                          id="terms-shopOwner" 
-                          checked={agreeTerms} 
-                          onCheckedChange={(checked) => setAgreeTerms(checked as boolean)} 
+                        <Checkbox
+                          id="terms-shopOwner"
+                          checked={agreeTerms}
+                          onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
                         />
                         <label
                           htmlFor="terms-shopOwner"
@@ -539,7 +539,7 @@ export default function Register() {
                           I agree to the <Link to="/terms-conditions" className="text-primary hover:underline">terms and conditions</Link>
                         </label>
                       </div>
-                      
+
                       <Button type="submit" className="h-11 w-full font-semibold shadow-lg transition-all hover:shadow-primary/50" disabled={isLoading || !agreeTerms}>
                         {isLoading ? (
                           <div className="flex items-center gap-2">

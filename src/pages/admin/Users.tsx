@@ -12,8 +12,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { toast } from 'sonner';
 import { adminService } from '@/services/adminService';
 import { authService } from '@/services/authService';
+import { vehicleService } from '@/services/vehicleService';
 import { Plus, Filter } from 'lucide-react';
-import type { User } from '@/types/types';
+import type { User, Vehicle } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
 
 export default function AdminUsers() {
@@ -32,14 +33,35 @@ export default function AdminUsers() {
     phone: '',
     password: ''
   });
+  const [vehiclesMap, setVehiclesMap] = useState<Record<number, Vehicle[]>>({});
+  const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
+  const [selectedUserForVehicles, setSelectedUserForVehicles] = useState<User | null>(null);
 
   useEffect(() => {
     loadUsers();
   }, []);
 
   const loadUsers = async () => {
-    const allUsers = await adminService.getAllUsers();
+    const [allUsers, allVehicles] = await Promise.all([
+      adminService.getAllUsers(),
+      vehicleService.getAllVehicles()
+    ]);
     setUsers(allUsers);
+
+    const map: Record<number, Vehicle[]> = {};
+    allVehicles.forEach((v) => {
+      const uid = v.userId || (v as any).user_id;
+      if (uid) {
+        if (!map[uid]) map[uid] = [];
+        map[uid].push(v);
+      }
+    });
+    setVehiclesMap(map);
+  };
+
+  const handleViewVehicles = (user: User) => {
+    setSelectedUserForVehicles(user);
+    setIsVehicleDialogOpen(true);
   };
 
   const handleToggleStatus = async (userId: number, currentStatus: string) => {
@@ -234,6 +256,7 @@ export default function AdminUsers() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
+                  <TableHead>Vehicle Details</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -246,18 +269,51 @@ export default function AdminUsers() {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.phone}</TableCell>
                     <TableCell>
+                      {(() => {
+                        const userVehicles = vehiclesMap[user.id] || [];
+                        if (userVehicles.length === 0) return <span className="text-muted-foreground text-xs">No Vehicles</span>;
+                        const first = userVehicles[0];
+                        return (
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm flex flex-col">
+                              <span className="font-medium">{first.number}</span>
+                              <span className="text-xs text-muted-foreground capitalize">{first.type}</span>
+                            </div>
+                            {userVehicles.length > 1 && (
+                              <Badge 
+                                variant="secondary" 
+                                className="cursor-pointer hover:bg-secondary/80 text-xs px-1.5 py-0 h-5"
+                                onClick={() => handleViewVehicles(user)}
+                              >
+                                +{userVehicles.length - 1}
+                              </Badge>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
                         {user.status}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant={user.status === 'active' ? 'destructive' : 'default'}
-                        size="sm"
-                        onClick={() => handleToggleStatus(user.id, user.status)}
-                      >
-                        {user.status === 'active' ? 'Deactivate' : 'Activate'}
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewVehicles(user)}
+                        >
+                          User's Vehicles
+                        </Button>
+                        <Button
+                          variant={user.status === 'active' ? 'destructive' : 'default'}
+                          size="sm"
+                          onClick={() => handleToggleStatus(user.id, user.status)}
+                        >
+                          {user.status === 'active' ? 'Deactivate' : 'Activate'}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -325,6 +381,40 @@ export default function AdminUsers() {
                 </Button>
               </div>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>{selectedUserForVehicles?.name}'s Vehicles</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {selectedUserForVehicles && vehiclesMap[selectedUserForVehicles.id] && vehiclesMap[selectedUserForVehicles.id].length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Vehicle Number</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Fuel</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {vehiclesMap[selectedUserForVehicles.id].map(vehicle => (
+                      <TableRow key={vehicle.id}>
+                        <TableCell className="font-medium">{vehicle.number}</TableCell>
+                        <TableCell className="capitalize">{vehicle.type}</TableCell>
+                        <TableCell className="capitalize">{vehicle.fuel}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="py-8 text-center text-muted-foreground">
+                  No vehicles found for this user.
+                </div>
+              )}
+            </div>
           </DialogContent>
         </Dialog>
       </div>

@@ -142,8 +142,8 @@ function handleCreate($db, $data) {
         }
 
         // Calculate booking date and time
-        $bookingDate = calculateBookingDate();
-        $bookingTime = generateRandomTime($center['working_hours']);
+        $bookingDate = isset($data['date']) && !empty($data['date']) ? $data['date'] : calculateBookingDate();
+        $bookingTime = isset($data['time']) && !empty($data['time']) ? $data['time'] : generateRandomTime($center['working_hours']);
 
         $query = "INSERT INTO bookings (user_id, center_id, vehicle_id, date, time, status, price)
                  VALUES (:user_id, :center_id, :vehicle_id, :date, :time, 'pending', :price)";

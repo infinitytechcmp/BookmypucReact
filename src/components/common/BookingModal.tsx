@@ -58,6 +58,26 @@ export function BookingModal({ center, isOpen, onClose, prefilledVehicle, prefil
   const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [appointmentType, setAppointmentType] = useState<'today' | 'later'>('today');
+  const [appointmentTime, setAppointmentTime] = useState<string>('');
+
+  const getTimeSlots = () => {
+    if (!center.working_hours) return [];
+    try {
+      const [start, end] = center.working_hours.split(' - ');
+      const [startHour] = start.split(':').map(Number);
+      const [endHour] = end.split(':').map(Number);
+      
+      const slots = [];
+      for (let h = startHour; h < endHour; h++) {
+        slots.push(`${h.toString().padStart(2, '0')}:00`);
+        slots.push(`${h.toString().padStart(2, '0')}:30`);
+      }
+      return slots;
+    } catch {
+      return ['10:00', '10:30', '11:00', '11:30', '12:00', '14:00', '14:30', '15:00', '15:30', '16:00'];
+    }
+  };
 
   const calculatePrice = () => {
     return centerService.calculatePrice(center, vehicleDetails.vehicleType, vehicleDetails.fuelType);
@@ -78,8 +98,13 @@ export function BookingModal({ center, isOpen, onClose, prefilledVehicle, prefil
   };
 
   const handleSendOTP = async () => {
-    if (!vehicleDetails.vehicleNumber || !vehicleDetails.brand || !vehicleDetails.model) {
-      toast.error('Please fill all vehicle details');
+    if (!vehicleDetails.vehicleNumber) {
+      toast.error('Please enter vehicle number');
+      return;
+    }
+    
+    if (appointmentType === 'today' && !appointmentTime) {
+      toast.error('Please select an appointment time for today');
       return;
     }
 
@@ -213,36 +238,60 @@ export function BookingModal({ center, isOpen, onClose, prefilledVehicle, prefil
         return;
       }
 
-      console.log('Step 4: Adding vehicle...');
-      // Add vehicle
-      const vehicle = await vehicleService.addVehicle({
-        userId,
-        number: vehicleDetails.vehicleNumber,
-        type: vehicleDetails.vehicleType,
-        brand: vehicleDetails.brand,
-        model: vehicleDetails.model,
-        fuel: vehicleDetails.fuelType
-      });
+      console.log('Step 4: Checking/Adding vehicle...');
+      let vehicleId: number;
 
+      // Check if vehicle already exists
+      const userVehicles = await vehicleService.getVehiclesByUserId(userId);
+      const existingVehicle = userVehicles.find(v => v.number.toUpperCase() === vehicleDetails.vehicleNumber.toUpperCase());
+      
+      if (existingVehicle) {
+        console.log('Vehicle already exists:', existingVehicle);
+        vehicleId = existingVehicle.id;
+      } else {
+        // Add new vehicle
+        const newVehicle = await vehicleService.addVehicle({
+          userId,
+          number: vehicleDetails.vehicleNumber,
+          type: vehicleDetails.vehicleType,
+          brand: vehicleDetails.brand,
+          model: vehicleDetails.model,
+          fuel: vehicleDetails.fuelType
+        });
 
-      console.log('Vehicle Result:', vehicle);
+        console.log('New Vehicle Result:', newVehicle);
 
-      if (!vehicle) {
-        console.error('Failed to add vehicle');
-        toast.error('Failed to add vehicle');
-        setIsVerifyingOTP(false);
-        return;
+        if (!newVehicle) {
+          console.error('Failed to add vehicle');
+          toast.error('Failed to add vehicle');
+          setIsVerifyingOTP(false);
+          return;
+        }
+        vehicleId = newVehicle.id;
       }
 
       console.log('Step 5: Creating booking...');
       // Create booking
       const price = calculatePrice();
 
+      const bookingDate = appointmentType === 'today' 
+        ? new Date().toISOString().split('T')[0] 
+        : (() => { const d = new Date(); d.setDate(d.getDate() + 2); return d.toISOString().split('T')[0]; })();
+        
+      const bookingTimeStr = appointmentType === 'today' 
+        ? appointmentTime 
+        : (() => {
+            const slots = getTimeSlots();
+            return slots.length > 0 ? slots[Math.floor(Math.random() * slots.length)] : '10:00';
+          })();
+
       const booking = await bookingService.createBooking({
         user_id: userId,
         center_id: center.id,
-        vehicle_id: vehicle.id,
-        price
+        vehicle_id: vehicleId,
+        price,
+        date: bookingDate,
+        time: bookingTimeStr
       });
 
       console.log('Booking Result:', booking);
@@ -428,6 +477,7 @@ export function BookingModal({ center, isOpen, onClose, prefilledVehicle, prefil
                   </Select>
                 </div>
               </div>
+              {/* 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="brand">Brand</Label>
@@ -445,6 +495,51 @@ export function BookingModal({ center, isOpen, onClose, prefilledVehicle, prefil
                     onChange={(e) => setVehicleDetails({ ...vehicleDetails, model: e.target.value })}
                   />
                 </div>
+              </div>
+              */}
+
+              <div className="space-y-3 pt-2 pb-2 border-y border-border/50 my-4">
+                <Label className="text-base font-semibold">When do you want to book?</Label>
+                <div className="flex gap-6">
+                  <div className="flex items-center space-x-2">
+                    <input 
+                      type="radio" 
+                      id="today" 
+                      name="appointmentType" 
+                      checked={appointmentType === 'today'} 
+                      onChange={() => setAppointmentType('today')} 
+                      className="cursor-pointer h-4 w-4"
+                    />
+                    <Label htmlFor="today" className="cursor-pointer text-sm">Today</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input 
+                      type="radio" 
+                      id="later" 
+                      name="appointmentType" 
+                      checked={appointmentType === 'later'} 
+                      onChange={() => setAppointmentType('later')} 
+                      className="cursor-pointer h-4 w-4"
+                    />
+                    <Label htmlFor="later" className="cursor-pointer text-sm">After 2 Days</Label>
+                  </div>
+                </div>
+
+                {appointmentType === 'today' && (
+                  <div className="pt-2 animate-in slide-in-from-top-2">
+                    <Label htmlFor="appointmentTime">Select Time Slot</Label>
+                    <Select value={appointmentTime} onValueChange={setAppointmentTime}>
+                      <SelectTrigger id="appointmentTime" className="mt-1">
+                        <SelectValue placeholder="Select Time Slot" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getTimeSlots().map(slot => (
+                          <SelectItem key={slot} value={slot}>{slot}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
               <div className="rounded-lg bg-primary/10 p-4 text-center">
                 <div className="text-sm text-muted-foreground">Total Price</div>

@@ -30,6 +30,17 @@ interface AdminBooking extends Booking {
   vehicle_fuel?: string;
 }
 
+const getVehicleTypeLabel = (type: string | undefined) => {
+  if (!type) return 'N/A';
+  const map: Record<string, string> = {
+    '2W': 'Two Wheeler',
+    '3W': 'Three Wheeler',
+    '4W': 'Four Wheeler',
+    'Commercial': 'Commercial'
+  };
+  return map[type] || type;
+};
+
 export default function AdminBookings() {
   const [bookings, setBookings] = useState<AdminBooking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -299,7 +310,7 @@ export default function AdminBookings() {
                           <div>
                             <p className="font-medium text-foreground">{booking.vehicle_number || 'N/A'}</p>
                             <p className="text-xs text-muted-foreground capitalize">
-                              {booking.vehicle_brand} {booking.vehicle_model} ({booking.vehicle_fuel})
+                              {getVehicleTypeLabel(booking.vehicle_type)} ({booking.vehicle_fuel})
                             </p>
                           </div>
                         </TableCell>
@@ -383,10 +394,12 @@ export default function AdminBookings() {
                       <span className="text-xs text-muted-foreground">Vehicle Type</span>
                       <p className="font-medium text-foreground capitalize">{selectedBooking.vehicle_type || 'N/A'}</p>
                     </div>
+                    {/* 
                     <div>
                       <span className="text-xs text-muted-foreground">Brand & Model</span>
                       <p className="font-medium text-foreground">{selectedBooking.vehicle_brand} {selectedBooking.vehicle_model}</p>
                     </div>
+                    */}
                     <div>
                       <span className="text-xs text-muted-foreground">Fuel Type</span>
                       <p className="font-medium text-foreground capitalize">{selectedBooking.vehicle_fuel || 'N/A'}</p>

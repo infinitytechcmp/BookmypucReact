@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Filter, Search } from 'lucide-react';
+import { Filter, Search, MapPin } from 'lucide-react';
 import { adminService } from '@/services/adminService';
 import type { Center, ShopOwner } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
@@ -200,9 +200,17 @@ export default function AdminCenters() {
                       <TableRow key={center.id}>
                         <TableCell className="font-medium">{center.name}</TableCell>
                         <TableCell>
-                          <div className="flex flex-col">
-                            <span>{center.city}, {center.state}</span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="line-clamp-2 text-sm" title={`${center.address}, ${center.city}, ${center.state}`}>{center.address}, {center.city}, {center.state}</span>
                             <span className="text-xs text-muted-foreground">{center.pincode}</span>
+                            <a 
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${center.name}, ${center.address}, ${center.city}, ${center.state} ${center.pincode}`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline flex items-center gap-1 w-fit mt-1"
+                            >
+                              <MapPin className="h-3 w-3" /> View on Map
+                            </a>
                           </div>
                         </TableCell>
                         <TableCell>{center.contact}</TableCell>

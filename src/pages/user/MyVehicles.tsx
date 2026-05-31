@@ -51,7 +51,8 @@ export default function MyVehicles() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.number || !formData.brand || !formData.model) {
+    // if (!formData.number || !formData.brand || !formData.model) {
+    if (!formData.number) {
       toast.error('Please fill all fields');
       return;
     }
@@ -175,6 +176,7 @@ export default function MyVehicles() {
                         </SelectContent>
                       </Select>
                     </div>
+                    {/* 
                     <div className="grid grid-cols-3 items-center gap-4">
                       <Label htmlFor="filter-brand">Brand</Label>
                       <Input
@@ -185,6 +187,7 @@ export default function MyVehicles() {
                         className="col-span-2 h-8"
                       />
                     </div>
+                    */}
                     <div className="grid grid-cols-3 items-center gap-4">
                       <Label htmlFor="filter-fuel">Fuel</Label>
                       <Select
@@ -262,6 +265,7 @@ export default function MyVehicles() {
                     </Select>
                   </div>
                 </div>
+                {/* 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="brand">Brand</Label>
@@ -282,6 +286,7 @@ export default function MyVehicles() {
                     />
                   </div>
                 </div>
+                */}
                 <div className="flex gap-2">
                   <Button type="button" variant="outline" className="w-full" onClick={handleCloseDialog}>
                     Cancel
@@ -311,8 +316,8 @@ export default function MyVehicles() {
                   <TableRow>
                     <TableHead>Vehicle Number</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead>Brand</TableHead>
-                    <TableHead>Model</TableHead>
+                    {/* <TableHead>Brand</TableHead> */}
+                    {/* <TableHead>Model</TableHead> */}
                     <TableHead>Fuel</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -322,8 +327,8 @@ export default function MyVehicles() {
                     <TableRow key={vehicle.id}>
                       <TableCell className="font-medium">{vehicle.number}</TableCell>
                       <TableCell>{vehicle.type}</TableCell>
-                      <TableCell>{vehicle.brand}</TableCell>
-                      <TableCell>{vehicle.model}</TableCell>
+                      {/* <TableCell>{vehicle.brand}</TableCell> */}
+                      {/* <TableCell>{vehicle.model}</TableCell> */}
                       <TableCell>{vehicle.fuel}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">

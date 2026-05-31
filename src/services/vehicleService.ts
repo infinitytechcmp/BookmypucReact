@@ -2,6 +2,11 @@ import type { Vehicle, VehicleType, FuelType } from '@/types/types';
 import { apiRequest, API_ENDPOINTS } from '@/config/api';
 
 export const vehicleService = {
+  // Get all vehicles
+  getAllVehicles: async (): Promise<Vehicle[]> => {
+    const result = await apiRequest<Vehicle[]>(API_ENDPOINTS.VEHICLES);
+    return result.success && result.data ? result.data : [];
+  },
   // Get all vehicles for a user
   getVehiclesByUserId: async (userId: number): Promise<Vehicle[]> => {
     const result = await apiRequest<Vehicle[]>(`${API_ENDPOINTS.VEHICLES}?user_id=${userId}`);

@@ -78,7 +78,8 @@ function handleGet($db) {
  * Create new vehicle
  */
 function handleCreate($db, $data) {
-    $required = ['user_id', 'number', 'type', 'brand', 'model', 'fuel'];
+    // $required = ['user_id', 'number', 'type', 'brand', 'model', 'fuel'];
+    $required = ['user_id', 'number', 'type', 'fuel'];
     $missing = validateRequired($data, $required);
     
     if (!empty($missing)) {
@@ -86,15 +87,17 @@ function handleCreate($db, $data) {
     }
 
     try {
-        $query = "INSERT INTO vehicles (user_id, number, type, brand, model, fuel)
-                 VALUES (:user_id, :number, :type, :brand, :model, :fuel)";
+        // $query = "INSERT INTO vehicles (user_id, number, type, brand, model, fuel)
+        //          VALUES (:user_id, :number, :type, :brand, :model, :fuel)";
+        $query = "INSERT INTO vehicles (user_id, number, type, fuel)
+                 VALUES (:user_id, :number, :type, :fuel)";
 
         $stmt = $db->prepare($query);
         $stmt->bindParam(':user_id', $data['user_id']);
         $stmt->bindParam(':number', $data['number']);
         $stmt->bindParam(':type', $data['type']);
-        $stmt->bindParam(':brand', $data['brand']);
-        $stmt->bindParam(':model', $data['model']);
+        // $stmt->bindParam(':brand', $data['brand']);
+        // $stmt->bindParam(':model', $data['model']);
         $stmt->bindParam(':fuel', $data['fuel']);
         
         $stmt->execute();
@@ -118,7 +121,8 @@ function handleUpdate($db, $data) {
         $updates = [];
         $params = [':id' => $data['id']];
 
-        $allowedFields = ['number', 'type', 'brand', 'model', 'fuel'];
+        // $allowedFields = ['number', 'type', 'brand', 'model', 'fuel'];
+        $allowedFields = ['number', 'type', 'fuel'];
         
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {

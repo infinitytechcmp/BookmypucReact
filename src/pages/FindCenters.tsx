@@ -287,7 +287,17 @@ export default function FindCenters() {
                     <div className="mb-4 space-y-2 text-sm text-muted-foreground">
                       <div className="flex items-start gap-2">
                         <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
-                        <span>{center.address}, {center.city}, {center.state} - {center.pincode}</span>
+                        <div className="flex flex-col">
+                          <span>{center.address}, {center.city}, {center.state} - {center.pincode}</span>
+                          <a 
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${center.name}, ${center.address}, ${center.city}, ${center.state} ${center.pincode}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-medium text-primary hover:underline mt-1 w-fit"
+                          >
+                            View on Google Maps
+                          </a>
+                        </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 shrink-0" />

@@ -39,7 +39,7 @@ export const bookingService = {
 
   // Create new booking
   createBooking: async (
-  bookingData: Omit<Booking, 'id' | 'date' | 'time' | 'status' | 'pucNumber' | 'certificate'>
+  bookingData: Omit<Booking, 'id' | 'status' | 'pucNumber' | 'certificate'>
 ): Promise<Booking | null> => {
 
   // 🔥 Convert camelCase → snake_case
@@ -47,7 +47,9 @@ export const bookingService = {
     user_id: bookingData.user_id,
     center_id: bookingData.center_id,
     vehicle_id: bookingData.vehicle_id,
-    price: bookingData.price
+    price: bookingData.price,
+    date: bookingData.date,
+    time: bookingData.time
   };
 
   const result = await apiRequest<{ id: number; date: string; time: string }>(
