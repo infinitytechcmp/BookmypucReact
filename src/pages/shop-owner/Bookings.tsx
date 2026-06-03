@@ -18,6 +18,17 @@ import { CheckCircle, XCircle, FileCheck, Calendar, Filter } from 'lucide-react'
 import type { Booking } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
 
+const getVehicleTypeLabel = (type: string | undefined) => {
+  if (!type) return '';
+  const map: Record<string, string> = {
+    '2W': 'Two Wheeler',
+    '3W': 'Three Wheeler',
+    '4W': 'Four Wheeler',
+    'Commercial': 'Commercial'
+  };
+  return map[type] || type;
+};
+
 export default function ShopOwnerBookings() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -133,10 +144,63 @@ const handleMarkAsDone = async () => {
     return user?.name || 'Unknown';
   };
 
-  const getVehicleNumber = (vehicleId: number) => {
+  const getUserDetails = (booking: any) => {
+    // Try to get from API response first
+    if (booking.user_name || booking.user_email) {
+      return (
+        <div>
+          <p className="font-medium text-foreground">{booking.user_name || 'N/A'}</p>
+          {booking.user_email && <p className="text-xs text-muted-foreground">{booking.user_email}</p>}
+        </div>
+      );
+    }
+    
+    // Fallback to mock data
     const mockData = getMockData();
-    const vehicle = mockData.vehicles.find(v => v.id === vehicleId);
-    return vehicle?.number || 'N/A';
+    const user = mockData.users.find(u => u.id === booking.user_id);
+    if (user) {
+      return (
+        <div>
+          <p className="font-medium text-foreground">{user.name}</p>
+          <p className="text-xs text-muted-foreground">{user.email}</p>
+        </div>
+      );
+    }
+    
+    return <span className="text-muted-foreground">Unknown</span>;
+  };
+
+  const getVehicleDetails = (booking: any) => {
+    // Try to get from API response first
+    if (booking.vehicle_number) {
+      const typeLabel = getVehicleTypeLabel(booking.vehicle_type);
+      return (
+        <div>
+          <p className="font-medium text-foreground uppercase">{booking.vehicle_number}</p>
+          {(typeLabel || booking.vehicle_fuel) && (
+            <p className="text-xs text-muted-foreground capitalize">
+              {typeLabel} {booking.vehicle_fuel ? `(${booking.vehicle_fuel})` : ''}
+            </p>
+          )}
+        </div>
+      );
+    }
+    
+    // Fallback to mock data
+    const mockData = getMockData();
+    const vehicle = mockData.vehicles.find(v => v.id === booking.vehicle_id);
+    if (vehicle) {
+      const typeLabel = getVehicleTypeLabel(vehicle.type);
+      return (
+        <div>
+          <p className="font-medium text-foreground uppercase">{vehicle.number}</p>
+          <p className="text-xs text-muted-foreground capitalize">
+            {typeLabel} {vehicle.fuel ? `(${vehicle.fuel})` : ''}
+          </p>
+        </div>
+      );
+    }
+    return <span className="text-muted-foreground">N/A</span>;
   };
 
   const getCenterName = (centerId: number) => {
@@ -145,7 +209,7 @@ const handleMarkAsDone = async () => {
   };
 
   const filteredBookings = bookings.filter((b) => {
-    const uName = getUserName(b.user_id).toLowerCase();
+    const uName = ((b as any).user_name || getUserName(b.user_id)).toLowerCase();
     const matchesUser = uName.includes(filters.user.toLowerCase());
     const matchesCenter = filters.centerId === 'all' || b.center_id.toString() === filters.centerId;
     const matchesStatus = filters.status === 'all' || b.status === filters.status;
@@ -284,8 +348,8 @@ const handleMarkAsDone = async () => {
                     {filteredBookings.map((booking) => (
                       <TableRow key={booking.id} className="hover:bg-muted/50">
                         <TableCell className="font-medium">#{booking.id}</TableCell>
-                        <TableCell>{getUserName(booking.user_id)}</TableCell>
-                        <TableCell>{getVehicleNumber(booking.vehicle_id)}</TableCell>
+                        <TableCell>{getUserDetails(booking)}</TableCell>
+                        <TableCell>{getVehicleDetails(booking)}</TableCell>
                         <TableCell>{getCenterName(booking.center_id)}</TableCell>
                         <TableCell>{booking.date}</TableCell>
                         <TableCell>{booking.time}</TableCell>
