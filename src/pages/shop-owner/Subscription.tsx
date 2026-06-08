@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { CheckCircle2 } from 'lucide-react';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function Subscription() {
   const { user } = useAuth();
@@ -11,7 +12,7 @@ export default function Subscription() {
     <ShopOwnerDashboardLayout>
       <div className="space-y-6">
         <div>
-          <h2 className="text-3xl font-bold">Subscription</h2>
+          <GradientHeading level={2} className="text-3xl font-bold">Subscription</GradientHeading>
           <p className="text-muted-foreground">Manage your subscription plan</p>
         </div>
 

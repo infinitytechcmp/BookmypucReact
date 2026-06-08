@@ -15,6 +15,7 @@ import { authService } from '@/services/authService';
 import { Plus, Filter } from 'lucide-react';
 import type { ShopOwner } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function AdminShopOwners() {
   const [shopOwners, setShopOwners] = useState<ShopOwner[]>([]);
@@ -153,7 +154,7 @@ export default function AdminShopOwners() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold">Shop Owners</h2>
+            <GradientHeading level={2} className="text-3xl font-bold">Shop Owners</GradientHeading>
             <p className="text-muted-foreground">Manage shop owners and their subscriptions</p>
           </div>
           <div className="flex items-center gap-2">

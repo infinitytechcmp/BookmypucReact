@@ -24,6 +24,7 @@ import type { Booking, Center, Vehicle } from '@/types/types';
 import { FILE_BASE_URL } from '@/config/api';
 import { Filter } from 'lucide-react';
 import { ExportButton } from '@/components/ExportButton';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function MyBookings() {
   const { user } = useAuth();
@@ -105,7 +106,7 @@ export default function MyBookings() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold">My Bookings</h2>
+            <GradientHeading level={2} className="text-3xl font-bold">My Bookings</GradientHeading>
             <p className="text-muted-foreground">View and manage your PUC appointments</p>
           </div>
           <div className="flex items-center gap-2">

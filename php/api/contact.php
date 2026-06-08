@@ -18,7 +18,8 @@ if ($method === 'POST') {
     
     // Validate required fields
     $required = ['name', 'email', 'mobile', 'subject', 'message'];
-    if (!validateRequired($data, $required)) {
+    $missing = validateRequired($data, $required);
+    if (!empty($missing)) {
         sendResponse(false, 'All fields are required');
     }
     

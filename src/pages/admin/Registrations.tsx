@@ -15,6 +15,7 @@ import { LICENSE_BASE_URL } from '@/config/api';
 import { Filter, Eye, Check, X, FileText, Calendar, MapPin, User, Phone, Mail, Award } from 'lucide-react';
 import type { ShopOwnerRegistration } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function AdminRegistrations() {
   const [registrations, setRegistrations] = useState<ShopOwnerRegistration[]>([]);
@@ -121,7 +122,7 @@ export default function AdminRegistrations() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold">Shop Owner Registrations</h2>
+            <GradientHeading level={2} className="text-3xl font-bold">Shop Owner Registrations</GradientHeading>
             <p className="text-muted-foreground">Review and approve or reject shop owner registrations</p>
           </div>
           <div className="flex items-center gap-2">

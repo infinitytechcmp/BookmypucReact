@@ -26,6 +26,7 @@ import { MapPin, Clock, Phone, X } from 'lucide-react';
 import { centerService } from '@/services/centerService';
 import type { Center, CenterFilters, VehicleType } from '@/types/types';
 import { BookingModal } from '@/components/common/BookingModal';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function FindCenters() {
   const location = useLocation();
@@ -133,7 +134,7 @@ export default function FindCenters() {
   return (
     <PublicLayout>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-8 text-3xl font-bold md:text-4xl">Find PUC Centers</h1>
+        <GradientHeading level={1} className="mb-8 text-3xl font-bold md:text-4xl">Find PUC Centers</GradientHeading>
 
         {/* Filter Panel */}
         <Card className="mb-8">

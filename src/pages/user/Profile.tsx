@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { getMockData, saveMockData } from '@/data/mockData';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function Profile() {
   const { user } = useAuth();
@@ -55,7 +56,7 @@ export default function Profile() {
     <UserDashboardLayout>
       <div className="space-y-6">
         <div>
-          <h2 className="text-3xl font-bold">Profile</h2>
+          <GradientHeading level={2} className="text-3xl font-bold">Profile</GradientHeading>
           <p className="text-muted-foreground">Manage your account information</p>
         </div>
 

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import PageMeta from "@/components/common/PageMeta";
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function NotFound() {
   return (
@@ -7,9 +8,9 @@ export default function NotFound() {
       <PageMeta title="Page Not Found" description="" />
       <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1">
         <div className="mx-auto w-full max-w-[242px] text-center sm:max-w-[472px]">
-          <h1 className="mb-8 font-bold text-gray-800 text-title-md dark:text-white/90 xl:text-title-2xl">
+          <GradientHeading level={1} className="mb-8 font-bold text-gray-800 text-title-md dark:text-white/90 xl:text-title-2xl">
             ERROR
-          </h1>
+          </GradientHeading>
 
           <img src="/images/error/404.svg" alt="404" className="dark:hidden" />
           <img

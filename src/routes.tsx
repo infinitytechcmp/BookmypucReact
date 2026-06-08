@@ -2,12 +2,11 @@ import type { ReactNode } from 'react';
 
 // Public Pages
 import Home from './pages/Home';
-import AboutUs from './pages/AboutUs';
 import FindCenters from './pages/FindCenters';
 import FAQs from './pages/FAQs';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsConditions from './pages/TermsConditions';
-import ContactUs from './pages/ContactUs';
+import CmsPage from './pages/CmsPage';
+import BlogDetail from './pages/BlogDetail';
+import Blogs from './pages/Blogs';
 
 // Auth Pages
 import Login from './pages/auth/Login';
@@ -45,12 +44,14 @@ interface RouteConfig {
 const routes: RouteConfig[] = [
   // Public Routes
   { name: 'Home', path: '/', element: <Home /> },
-  { name: 'About Us', path: '/about', element: <AboutUs /> },
+  { name: 'About Us', path: '/about', element: <CmsPage slug="about" hideTitle /> },
   { name: 'Find Centers', path: '/find-centers', element: <FindCenters /> },
   { name: 'FAQs', path: '/faqs', element: <FAQs /> },
-  { name: 'Privacy Policy', path: '/privacy-policy', element: <PrivacyPolicy /> },
-  { name: 'Terms & Conditions', path: '/terms-conditions', element: <TermsConditions /> },
-  { name: 'Contact Us', path: '/contact', element: <ContactUs /> },
+  { name: 'Privacy Policy', path: '/privacy-policy', element: <CmsPage slug="privacy-policy" title="Privacy Policy" /> },
+  { name: 'Terms & Conditions', path: '/terms-conditions', element: <CmsPage slug="terms-conditions" title="Terms & Conditions" /> },
+  { name: 'Contact Us', path: '/contact', element: <CmsPage slug="contact-us" hideTitle /> },
+  { name: 'Blogs', path: '/blogs', element: <Blogs /> },
+  { name: 'Blog Detail', path: '/blog/:slug', element: <BlogDetail />, visible: false },
 
   // Auth Routes
   { name: 'Login', path: '/login', element: <Login /> },
@@ -76,7 +77,10 @@ const routes: RouteConfig[] = [
   { name: 'Admin Centers', path: '/admin/centers', element: <AdminCenters /> },
   { name: 'Admin Subscriptions', path: '/admin/subscriptions', element: <AdminSubscriptions /> },
   { name: 'Admin Registrations', path: '/admin/registrations', element: <AdminRegistrations /> },
-  { name: 'Admin Bookings', path: '/admin/bookings', element: <AdminBookings /> }
+  { name: 'Admin Bookings', path: '/admin/bookings', element: <AdminBookings /> },
+
+  // Dynamic CMS Catch-All Route (Must be last so it doesn't override hardcoded paths)
+  { name: 'Dynamic Page', path: '/:slug', element: <CmsPage /> },
 ];
 
 export default routes;

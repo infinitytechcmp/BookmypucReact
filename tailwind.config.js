@@ -23,6 +23,10 @@ export default {
             }
         },
         extend: {
+            fontFamily: {
+                sans: ['var(--font-primary)'],
+                heading: ['var(--font-secondary)'],
+            },
             colors: {
                 border: 'hsl(var(--border))',
                 borderColor: {

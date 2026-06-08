@@ -12,6 +12,7 @@ import { Filter, Search, MapPin } from 'lucide-react';
 import { adminService } from '@/services/adminService';
 import type { Center, ShopOwner } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function AdminCenters() {
   const [centers, setCenters] = useState<Center[]>([]);
@@ -66,7 +67,7 @@ export default function AdminCenters() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">PUC Centers</h2>
+            <GradientHeading level={2} className="text-3xl font-bold tracking-tight">PUC Centers</GradientHeading>
             <p className="text-muted-foreground">Monitor and manage all PUC centers</p>
           </div>
           

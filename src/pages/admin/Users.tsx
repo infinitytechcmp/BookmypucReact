@@ -16,6 +16,7 @@ import { vehicleService } from '@/services/vehicleService';
 import { Plus, Filter } from 'lucide-react';
 import type { User, Vehicle } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -158,7 +159,7 @@ export default function AdminUsers() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold">Users</h2>
+            <GradientHeading level={2} className="text-3xl font-bold">Users</GradientHeading>
             <p className="text-muted-foreground">Manage registered users</p>
           </div>
           <div className="flex items-center gap-2">

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield, Lock, Mail, ArrowRight, Sparkles, Eye, EyeOff } from 'lucide-react';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -92,9 +93,9 @@ export default function AdminLogin() {
                       </div>
                     </div>
                   </div>
-                  <h1 className="mb-2 bg-gradient-to-r from-destructive via-primary to-chart-2 bg-clip-text text-3xl font-bold text-transparent">
+                  <GradientHeading level={1} className="mb-2 bg-gradient-to-r from-destructive via-primary to-chart-2 bg-clip-text text-3xl font-bold text-transparent">
                     Admin Portal
-                  </h1>
+                  </GradientHeading>
                   <p className="text-sm text-muted-foreground">
                     Secure access to administrative dashboard
                   </p>

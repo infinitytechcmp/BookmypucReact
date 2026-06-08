@@ -16,6 +16,7 @@ import { apiRequest, API_ENDPOINTS } from '@/config/api';
 import { Plus, Pencil, Trash2, Filter } from 'lucide-react';
 import type { Center, ShopOwnerRegistration } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 interface CenterFormData {
   name: string;
@@ -264,7 +265,7 @@ export default function MyCenters() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold">My Centers</h2>
+            <GradientHeading level={2} className="text-3xl font-bold">My Centers</GradientHeading>
             <p className="text-muted-foreground">Manage your PUC centers</p>
           </div>
           <div className="flex items-center gap-2">

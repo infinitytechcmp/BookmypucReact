@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Home, Calendar, Car, User as UserIcon, LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 interface UserDashboardLayoutProps {
   children: React.ReactNode;
@@ -110,7 +111,7 @@ export function UserDashboardLayout({ children }: UserDashboardLayoutProps) {
 
         {/* Desktop Header */}
         <header className="hidden h-16 items-center justify-between border-b border-border bg-background px-6 md:flex">
-          <h1 className="text-2xl font-bold">User Dashboard</h1>
+          <GradientHeading level={1} className="text-2xl font-bold">User Dashboard</GradientHeading>
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
             {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>

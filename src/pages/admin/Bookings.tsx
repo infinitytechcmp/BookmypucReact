@@ -14,6 +14,7 @@ import { Calendar, Filter, Eye, FileText, CheckCircle, Clock, Ban, DollarSign } 
 import type { Booking } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
 import { FILE_BASE_URL } from '@/config/api';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 interface AdminBooking extends Booking {
   user_name?: string;
@@ -113,7 +114,7 @@ export default function AdminBookings() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Bookings List</h2>
+            <GradientHeading level={2} className="text-3xl font-bold tracking-tight">Bookings List</GradientHeading>
             <p className="text-muted-foreground">Monitor and inspect all pollution certificate bookings</p>
           </div>
           <div className="flex items-center gap-2">

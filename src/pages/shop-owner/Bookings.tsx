@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { CheckCircle, XCircle, FileCheck, Calendar, Filter } from 'lucide-react';
 import type { Booking } from '@/types/types';
 import { ExportButton } from '@/components/ExportButton';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 const getVehicleTypeLabel = (type: string | undefined) => {
   if (!type) return '';
@@ -224,7 +225,7 @@ const handleMarkAsDone = async () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold">Bookings Management</h2>
+            <GradientHeading level={2} className="text-3xl font-bold">Bookings Management</GradientHeading>
             <p className="text-muted-foreground">Confirm, reject, and manage customer bookings</p>
           </div>
           <div className="flex items-center gap-2">

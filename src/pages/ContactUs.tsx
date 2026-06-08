@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { apiRequest, API_ENDPOINTS } from '@/config/api';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
@@ -69,7 +70,7 @@ export default function ContactUs() {
     <PublicLayout>
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12 text-center">
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">Contact Us</h1>
+          <GradientHeading level={1} className="mb-4 text-4xl font-bold md:text-5xl">Contact Us</GradientHeading>
           <p className="text-lg text-muted-foreground">
             Have questions? We'd love to hear from you.
           </p>

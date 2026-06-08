@@ -10,6 +10,7 @@ import { bookingService } from '@/services/bookingService';
 import { Building2, Calendar, Clock, CheckCircle2, IndianRupee, TrendingUp, BarChart3, Filter } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { Booking, Center } from '@/types/types';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function ShopOwnerDashboard() {
   const { user } = useAuth();
@@ -155,7 +156,7 @@ export default function ShopOwnerDashboard() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h2 className="text-3xl font-bold">Dashboard Analytics</h2>
+          <GradientHeading level={2} className="text-3xl font-bold">Dashboard Analytics</GradientHeading>
           <p className="text-muted-foreground">Center-wise performance and booking analytics</p>
         </div>
 

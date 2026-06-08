@@ -1,7 +1,21 @@
 import { Link } from 'react-router-dom';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+import { Facebook, Twitter, Instagram, Linkedin, Youtube, Mail } from 'lucide-react';
 
 export function Footer() {
-  const currentYear = 2026;
+  const { settings } = useSiteSettings();
+  const currentYear = new Date().getFullYear();
+
+  // Helper to map icon classes to Lucide icons
+  const renderSocialIcon = (iconClass: string) => {
+    if (iconClass.includes('facebook')) return <Facebook className="h-4 w-4" />;
+    if (iconClass.includes('twitter') || iconClass.includes('x')) return <Twitter className="h-4 w-4" />;
+    if (iconClass.includes('instagram')) return <Instagram className="h-4 w-4" />;
+    if (iconClass.includes('linkedin')) return <Linkedin className="h-4 w-4" />;
+    if (iconClass.includes('youtube')) return <Youtube className="h-4 w-4" />;
+    if (iconClass.includes('mail')) return <Mail className="h-4 w-4" />;
+    return null;
+  };
 
   return (
     <footer className="border-t border-border bg-muted/30">
@@ -10,11 +24,19 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
-              <img
-                src="/puclogo.png"
-                alt="BookMyPUC Logo"
-                className="h-[55px] w-auto"
-              />
+              {settings.logo ? (
+                <img
+                  src={settings.logo}
+                  alt={settings.siteTitle || "Logo"}
+                  className="h-[40px] md:h-[55px] w-auto"
+                />
+              ) : (
+                <img
+                  src="/puclogo.png"
+                  alt="BookMyPUC Logo"
+                  className="h-[40px] md:h-[55px] w-auto"
+                />
+              )}
             </div>
             <p className="text-sm text-muted-foreground">
               Your trusted platform for hassle-free PUC certificate bookings.
@@ -80,8 +102,29 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t border-border pt-6 text-center text-sm text-muted-foreground">
-          <p>© {currentYear} BookMyPUC. All rights reserved.</p>
+        <div className="mt-8 border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="text-sm text-muted-foreground">
+            <p>{settings.copyrightText || `© ${currentYear} BookMyPUC. All rights reserved.`}</p>
+          </div>
+          {settings.socialLinks && settings.socialLinks.length > 0 && (
+            <div className="flex space-x-4">
+              {settings.socialLinks.map((social, index) => {
+                if (!social.url || !social.icon) return null;
+                return (
+                  <a
+                    key={index}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                    aria-label={social.name || social.social || 'Social link'}
+                  >
+                    {renderSocialIcon(social.icon)}
+                  </a>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </footer>

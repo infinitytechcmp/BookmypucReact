@@ -1,8 +1,27 @@
+import { useState, useEffect } from 'react';
 import { PublicLayout } from '@/components/layouts/PublicLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Users, Target, Award } from 'lucide-react';
+import { cmsService } from '@/services/cmsService';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function AboutUs() {
+  const [pageData, setPageData] = useState<any>(null);
+
+  useEffect(() => {
+    cmsService.getPages()
+      .then(data => {
+        if (data && !data.error && data.data) {
+          const items = Array.isArray(data.data) ? data.data : (data.data.data || []);
+          const aboutPage = items.find((p: any) => p.slug === 'about-us' || p.slug === 'about');
+          if (aboutPage) {
+            setPageData(aboutPage);
+          }
+        }
+      })
+      .catch(console.error);
+  }, []);
+
   const stats = [
     { label: 'Centers Listed', value: '500+', icon: Award },
     { label: 'Bookings Completed', value: '10,000+', icon: Target },
@@ -14,32 +33,40 @@ export default function AboutUs() {
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-12 text-center">
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">About BookMyPUC</h1>
+          <GradientHeading level={1} className="mb-4 text-4xl font-bold md:text-5xl">About BookMyPUC</GradientHeading>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
             Your trusted partner for hassle-free PUC certificate bookings across India
           </p>
         </div>
 
-        {/* Mission Section */}
-        <Card className="mb-12">
-          <CardContent className="p-8 md:p-12">
-            <h2 className="mb-4 text-2xl font-bold md:text-3xl">Our Mission</h2>
-            <p className="mb-4 text-lg text-muted-foreground">
-              At BookMyPUC, we are committed to making pollution control certificate bookings simple, 
-              fast, and accessible for every vehicle owner in India. We believe in contributing to a 
-              cleaner environment by ensuring that every vehicle meets the required pollution standards.
-            </p>
-            <p className="text-lg text-muted-foreground">
-              Our platform connects vehicle owners with certified PUC centers, enabling seamless 
-              appointment scheduling and instant certificate generation. We work with verified centers 
-              across the country to provide you with reliable and convenient service.
-            </p>
-          </CardContent>
-        </Card>
+        {/* Mission Section / Dynamic Content */}
+        {pageData?.content ? (
+          <Card className="mb-12">
+            <CardContent className="p-8 md:p-12 prose dark:prose-invert max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: pageData.content }} />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mb-12">
+            <CardContent className="p-8 md:p-12">
+              <GradientHeading level={2} className="mb-4 text-2xl font-bold md:text-3xl">Our Mission</GradientHeading>
+              <p className="mb-4 text-lg text-muted-foreground">
+                At BookMyPUC, we are committed to making pollution control certificate bookings simple, 
+                fast, and accessible for every vehicle owner in India. We believe in contributing to a 
+                cleaner environment by ensuring that every vehicle meets the required pollution standards.
+              </p>
+              <p className="text-lg text-muted-foreground">
+                Our platform connects vehicle owners with certified PUC centers, enabling seamless 
+                appointment scheduling and instant certificate generation. We work with verified centers 
+                across the country to provide you with reliable and convenient service.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats Section */}
         <div className="mb-12">
-          <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">Our Impact</h2>
+          <GradientHeading level={2} className="mb-8 text-center text-2xl font-bold md:text-3xl">Our Impact</GradientHeading>
           <div className="grid gap-6 md:grid-cols-3">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
@@ -63,7 +90,7 @@ export default function AboutUs() {
         {/* Values Section */}
         <Card>
           <CardContent className="p-8 md:p-12">
-            <h2 className="mb-6 text-2xl font-bold md:text-3xl">Our Values</h2>
+            <GradientHeading level={2} className="mb-6 text-2xl font-bold md:text-3xl">Our Values</GradientHeading>
             <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <h3 className="mb-2 text-xl font-semibold">Trust & Reliability</h3>

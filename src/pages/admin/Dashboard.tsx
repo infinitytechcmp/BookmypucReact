@@ -10,6 +10,7 @@ import { getMockData } from '@/data/mockData';
 import { Calendar, DollarSign, Users, Building2, TrendingUp, BarChart3, Filter, UserCheck } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import type { User, ShopOwner, Booking } from '@/types/types';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
@@ -185,7 +186,7 @@ export default function AdminDashboard() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h2 className="text-3xl font-bold">Platform Analytics</h2>
+          <GradientHeading level={2} className="text-3xl font-bold">Platform Analytics</GradientHeading>
           <p className="text-muted-foreground">Comprehensive user and shop owner performance metrics</p>
         </div>
 

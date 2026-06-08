@@ -13,6 +13,7 @@ import { centerService } from '@/services/centerService';
 import { Calendar, Car, CheckCircle2, Clock, TrendingUp, IndianRupee, BarChart3, Filter } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { Booking, Vehicle, Center } from '@/types/types';
+import { GradientHeading } from '@/components/ui/gradient-heading';
 
 export default function UserDashboard() {
   const { user } = useAuth();
@@ -162,7 +163,7 @@ export default function UserDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold">Dashboard Analytics</h2>
+            <GradientHeading level={2} className="text-3xl font-bold">Dashboard Analytics</GradientHeading>
             <p className="text-muted-foreground">Comprehensive overview of your PUC bookings</p>
           </div>
           <Button asChild className="shadow-lg">
